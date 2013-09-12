@@ -108,6 +108,9 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="&#x5206;&#x6790;&#x5185;&#x5bb9;&#x9875;"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnGetContentActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="btnGetPlay">
       <Properties>

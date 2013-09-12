@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.cnunixclub.helper.HTMLDownloader;
+import org.cnunixclub.helper.MovieConentHelperWithDD13;
 import org.cnunixclub.helper.MovieContentHelper;
 import org.cnunixclub.helper.MoviePlayUrlHelper;
 
@@ -58,6 +59,11 @@ public class MovieSpiderDemoFrame extends javax.swing.JFrame implements IDownloa
         txtPlayUrl.setText("http://www.cncvod.com/play/?64063-0-0.html");
 
         btnGetContent.setText("分析内容页");
+        btnGetContent.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGetContentActionPerformed(evt);
+            }
+        });
 
         btnGetPlay.setText("分析播放页");
         btnGetPlay.addActionListener(new java.awt.event.ActionListener() {
@@ -122,12 +128,24 @@ public class MovieSpiderDemoFrame extends javax.swing.JFrame implements IDownloa
         try {
             // TODO add your handling code here:
             this.lblStatus.setText("正在下载页面，请稍后......");
-            HTMLDownloader.DownloadHTMLFile(this.txtPlayUrl.getText(), this);
+            HTMLDownloader.downloadFile("qvodfinder", this.txtPlayUrl.getText(), this);
             this.txtResult.setText("");
         } catch (Exception ex) {
             Logger.getLogger(MovieSpiderDemoFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_btnGetPlayActionPerformed
+
+    private void btnGetContentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGetContentActionPerformed
+        // TODO add your handling code here:
+        try {
+            // TODO add your handling code here:
+            this.lblStatus.setText("正在下载页面，请稍后......");
+            HTMLDownloader.downloadFile("contentresolve", this.txtConentUrl.getText(), this);
+            this.txtResult.setText("");
+        } catch (Exception ex) {
+            Logger.getLogger(MovieSpiderDemoFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_btnGetContentActionPerformed
 
     /**
      * @param args the command line arguments
@@ -180,8 +198,7 @@ public class MovieSpiderDemoFrame extends javax.swing.JFrame implements IDownloa
     }
 
     @Override
-    public void onReportError(AVideoDownloader avd, String string, String string1)
-    {
+    public void onReportError(AVideoDownloader avd, String string, String string1) {
         this.lblStatus.setText("页面下载出错！");
     }
 
@@ -190,18 +207,28 @@ public class MovieSpiderDemoFrame extends javax.swing.JFrame implements IDownloa
         this.lblStatus.setText("页面下载完成，正在分析......");
         try {
             String content = HTMLDownloader.readAllTextFromFile(avd.getVideoBufferUrl());
-            ArrayList<String> team = MoviePlayUrlHelper.getQvodUrlList(content);
-            String showStr = "";
-            for(String s : team)
-            {
-                showStr += s + "\n";
+            if (avd.downloaderID.startsWith("qvodfinder")) {
+                ArrayList<String> team = MoviePlayUrlHelper.getQvodUrlList(content);
+                String showStr = "";
+                for (String s : team) {
+                    showStr += s + "\n";
+                }
+
+                this.txtResult.setText(showStr);
+                this.lblStatus.setText("页面分析完成，共找到" + team.size() + "个快播地址");
+            } else if (avd.downloaderID.startsWith("contentresolve")) {
+                ArrayList<String> team = MovieConentHelperWithDD13.getPlayPageUrlList(content);
+                String showStr = "";
+                for (String s : team) {
+                    showStr += s + "\n";
+                }
+
+                this.txtResult.setText(showStr);
+                this.lblStatus.setText("页面分析完成，共找到" + team.size() + "个记录");
             }
-            
-            this.txtResult.setText(showStr);
-            this.lblStatus.setText("页面分析完成，共找到" + team.size() + "个快播地址");
         } catch (Exception ex) {
             Logger.getLogger(MovieSpiderDemoFrame.class.getName()).log(Level.SEVERE, null, ex);
-        }        
+        }
     }
 
     @Override

@@ -37,7 +37,7 @@ public class HTMLDownloader {
      * @return
      * @throws Exception 
      */
-    public static String DownloadHTMLFile(String url,IDownloadProgressEvent component) throws Exception
+    public static String downloadHTMLFile(String url,IDownloadProgressEvent component) throws Exception
     {
         return downloadFile("htmlTasks",url,component);
     }
