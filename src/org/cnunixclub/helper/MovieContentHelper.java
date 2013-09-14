@@ -143,4 +143,26 @@ public class MovieContentHelper {
         }
         return resultStr.replace("\"", "").replace("'", "").replace("<a class=", "").replace("next", "").replace("href=", "").replace(">下一页</a>", "");
     }
+    
+    /**
+     * 获取频道链接列表
+     * @return 
+     */
+    public static ArrayList<String> getMovieChannelPageUrlList(String content)
+    {
+        ArrayList<String> team = RegularHelper.getAllURLAndTitleInLink(content);
+        ArrayList<String> resultList = new ArrayList<String>();
+        for(String s : team)
+        {
+            s = s.replace("\"", "").replace("'", "").replace("<a href=", "").replace("><span>", "").replace("</span></a>", "").replace("target=_blank", "").replace("</a>", "").replace(">", "").replace(" ", "").replace("html", "html,").trim();
+            if (s.contains("channel/?") && !s.contains("更多") && !s.contains("em"))
+            {
+                if (!resultList.contains(s))
+                {
+                   resultList.add(s);
+                }
+            }
+        }
+        return resultList;
+    }
 }

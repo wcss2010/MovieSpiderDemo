@@ -216,7 +216,7 @@ public class MovieSpiderDemoFrame extends javax.swing.JFrame implements IDownloa
         this.lblStatus.setText("页面下载完成，正在分析......");
         try {
             String content = HTMLDownloader.readAllTextFromFileWithGBK(avd.getVideoBufferUrl());
-//            ArrayList<String> team = MovieContentHelper.getMovieContentPageUrlList(content);
+//            ArrayList<String> team = MovieContentHelper.getMovieChannelPageUrlList(content);
 //            for(String s : team)
 //            {
 //               printLogText(s);
