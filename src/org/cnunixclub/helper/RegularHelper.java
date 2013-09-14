@@ -66,7 +66,7 @@ public class RegularHelper
      */
     public static ArrayList<String> getAllURLAndTitleInLink(String contents)
     {
-        return getDataWithRegular("\\<a href *= *['\"]*(\\S+)[\"'].*\\>(.[^\\<]*)?\\</a>",contents,"");
+        return getDataWithRegular("<a[\\s\\S]*?href=\"([^\"]+)[^>]+>([\\s\\S]*?)</a>",contents,"");
     }
 
     /**

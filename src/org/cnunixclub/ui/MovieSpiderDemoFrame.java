@@ -13,6 +13,7 @@ import org.cnunixclub.helper.HTMLDownloader;
 import org.cnunixclub.helper.MovieContentHelperWithDD13;
 import org.cnunixclub.helper.MovieContentHelper;
 import org.cnunixclub.helper.MoviePlayUrlHelper;
+import org.cnunixclub.helper.RegularHelper;
 
 /**
  *
@@ -66,6 +67,7 @@ public class MovieSpiderDemoFrame extends javax.swing.JFrame implements IDownloa
         });
 
         btnGetPlay.setText("分析播放页");
+        btnGetPlay.setEnabled(false);
         btnGetPlay.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnGetPlayActionPerformed(evt);
@@ -147,6 +149,13 @@ public class MovieSpiderDemoFrame extends javax.swing.JFrame implements IDownloa
         }
     }//GEN-LAST:event_btnGetContentActionPerformed
 
+    private void printLogText(String cnt)
+    {
+        String oldContent = this.txtResult.getText();
+        oldContent += cnt + "\n";
+        this.txtResult.setText(oldContent);
+    }
+    
     /**
      * @param args the command line arguments
      */
@@ -207,33 +216,43 @@ public class MovieSpiderDemoFrame extends javax.swing.JFrame implements IDownloa
         this.lblStatus.setText("页面下载完成，正在分析......");
         try {
             String content = HTMLDownloader.readAllTextFromFileWithGBK(avd.getVideoBufferUrl());
-            //content = new String(content.getBytes("gbk"),"utf8");
-            this.txtResult.setText(content);
-//            if (avd.downloaderID.startsWith("qvodfinder")) {
-//                ArrayList<String> team = MoviePlayUrlHelper.getQvodUrlList(content);
-//                String showStr = "";
-//                for (String s : team) {
-//                    showStr += s + "\n";
-//                }
-//
-//                this.txtResult.setText(showStr);
-//                this.lblStatus.setText("页面分析完成，共找到" + team.size() + "个快播地址");
-//            } else if (avd.downloaderID.startsWith("contentresolve")) {
-//                ArrayList<String> team = MovieContentHelperWithDD13.getPlayPageUrlList(content);
-//                String showStr = "";
-//                for (String s : team) {
-//                    showStr += s + "\n";
-//                }
-//                showStr += "片名：" + MovieContentHelperWithDD13.getMovieName(content);
-//                this.txtResult.setText(showStr);
-//                this.lblStatus.setText("页面分析完成，共找到" + team.size() + "个记录");
+//            ArrayList<String> team = MovieContentHelper.getMovieContentPageUrlList(content);
+//            for(String s : team)
+//            {
+//               printLogText(s);
 //            }
+            
+//            printLogText(MovieContentHelper.getMovieNextPageUrl(content));
+            if (avd.downloaderID.startsWith("qvodfinder")) {
+                ArrayList<String> team = MoviePlayUrlHelper.getQvodUrlList(content);
+                for (String s : team) {
+                    printLogText(s);
+                }
+
+                printLogText("页面分析完成，共找到" + team.size() + "个快播地址");
+            } else if (avd.downloaderID.startsWith("contentresolve")) {
+                String showStr = "";
+                printLogText("片名：" + MovieContentHelper.getMovieName(content));
+                printLogText("图片：" + MovieContentHelper.getMovieImageUrl(content));
+                printLogText("介绍：" + MovieContentHelper.getMovieDetailText(content));
+                printLogText("Qvod地址：");
+                ArrayList<String> team = MovieContentHelper.getPlayPageUrlList(content);
+                if (team.size() > 0)
+                {
+                   String currentPlayPage = "http://www.cncvod.com/" + team.get(0);
+                   HTMLDownloader.downloadFile("qvodfinder", currentPlayPage, this);
+                }
+
+                //this.lblStatus.setText("页面分析完成，共找到" + team.size() + "个记录");
+            }
         } catch (Exception ex) {
             Logger.getLogger(MovieSpiderDemoFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
     @Override
-    public void onReportStatus(AVideoDownloader avd, String string) {
+    public void onReportStatus(AVideoDownloader avd, String string) 
+    {
+        
     }
 }

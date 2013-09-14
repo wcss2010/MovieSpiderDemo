@@ -115,6 +115,7 @@
     <Component class="javax.swing.JButton" name="btnGetPlay">
       <Properties>
         <Property name="text" type="java.lang.String" value="&#x5206;&#x6790;&#x64ad;&#x653e;&#x9875;"/>
+        <Property name="enabled" type="boolean" value="false"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnGetPlayActionPerformed"/>
