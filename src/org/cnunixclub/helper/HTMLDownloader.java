@@ -16,7 +16,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Date;
 
 /**
- *
+ *  数据下载工具类
  * @author wcss
  */
 public class HTMLDownloader {
