@@ -52,6 +52,5 @@ public class MovieContentHelper
         } else {
             return resultStr;
         }
-
     }
 }

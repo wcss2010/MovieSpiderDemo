@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.cnunixclub.helper.HTMLDownloader;
-import org.cnunixclub.helper.MovieConentHelperWithDD13;
+import org.cnunixclub.helper.MovieContentHelperWithDD13;
 import org.cnunixclub.helper.MovieContentHelper;
 import org.cnunixclub.helper.MoviePlayUrlHelper;
 
@@ -206,26 +206,28 @@ public class MovieSpiderDemoFrame extends javax.swing.JFrame implements IDownloa
     public void onReportFinish(AVideoDownloader avd) {
         this.lblStatus.setText("页面下载完成，正在分析......");
         try {
-            String content = HTMLDownloader.readAllTextFromFile(avd.getVideoBufferUrl());
-            if (avd.downloaderID.startsWith("qvodfinder")) {
-                ArrayList<String> team = MoviePlayUrlHelper.getQvodUrlList(content);
-                String showStr = "";
-                for (String s : team) {
-                    showStr += s + "\n";
-                }
-
-                this.txtResult.setText(showStr);
-                this.lblStatus.setText("页面分析完成，共找到" + team.size() + "个快播地址");
-            } else if (avd.downloaderID.startsWith("contentresolve")) {
-                ArrayList<String> team = MovieConentHelperWithDD13.getPlayPageUrlList(content);
-                String showStr = "";
-                for (String s : team) {
-                    showStr += s + "\n";
-                }
-
-                this.txtResult.setText(showStr);
-                this.lblStatus.setText("页面分析完成，共找到" + team.size() + "个记录");
-            }
+            String content = HTMLDownloader.readAllTextFromFileWithGBK(avd.getVideoBufferUrl());
+            //content = new String(content.getBytes("gbk"),"utf8");
+            this.txtResult.setText(content);
+//            if (avd.downloaderID.startsWith("qvodfinder")) {
+//                ArrayList<String> team = MoviePlayUrlHelper.getQvodUrlList(content);
+//                String showStr = "";
+//                for (String s : team) {
+//                    showStr += s + "\n";
+//                }
+//
+//                this.txtResult.setText(showStr);
+//                this.lblStatus.setText("页面分析完成，共找到" + team.size() + "个快播地址");
+//            } else if (avd.downloaderID.startsWith("contentresolve")) {
+//                ArrayList<String> team = MovieContentHelperWithDD13.getPlayPageUrlList(content);
+//                String showStr = "";
+//                for (String s : team) {
+//                    showStr += s + "\n";
+//                }
+//                showStr += "片名：" + MovieContentHelperWithDD13.getMovieName(content);
+//                this.txtResult.setText(showStr);
+//                this.lblStatus.setText("页面分析完成，共找到" + team.size() + "个记录");
+//            }
         } catch (Exception ex) {
             Logger.getLogger(MovieSpiderDemoFrame.class.getName()).log(Level.SEVERE, null, ex);
         }

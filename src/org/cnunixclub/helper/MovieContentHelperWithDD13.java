@@ -10,7 +10,7 @@ import java.util.ArrayList;
  * 网址：http://www.dd13.tv/gc/
  * @author wcss
  */
-public class MovieConentHelperWithDD13 
+public class MovieContentHelperWithDD13 
 {
     /**
      * 获取影片播放页面地址
@@ -28,5 +28,32 @@ public class MovieConentHelperWithDD13
         }
         result.clear();
         return returns;
-    }    
+    }
+    
+        /**
+     * 获取影片详细介绍
+     *
+     * @param content
+     * @return
+     */
+    public static String getMovieName(String content) {
+        ArrayList<String> result = RegularHelper.getDataWithRegular("<title>(.)*/title>", content, "");
+        String resultStr = "";
+        for (String s : result) {
+            if (s.contains("title")) {
+                resultStr = s;
+                break;
+            }
+        }
+//        String[] temp = resultStr.split("</a>");
+//        if (temp.length >= 3)
+//        {        
+//            resultStr = temp[2];
+//            return resultStr.replace("</div>", "");
+//
+//        }else
+//        {
+           return resultStr;
+        //}
+    }
 }
