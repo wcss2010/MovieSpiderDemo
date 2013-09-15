@@ -221,8 +221,10 @@ public class MovieSpiderDemoFrame extends javax.swing.JFrame implements IDownloa
 //            {
 //               printLogText(s);
 //            }
-            
-//            printLogText(MovieContentHelper.getMovieNextPageUrl(content));
+//            ArrayList<String> hotVideos = new ArrayList<String>();
+//            hotVideos.add("大上海");
+//            hotVideos.add("一路向西");
+//            printLogText(MovieContentHelper.getMoviePlayActor(content,hotVideos));
             if (avd.downloaderID.startsWith("qvodfinder")) {
                 ArrayList<String> team = MoviePlayUrlHelper.getQvodUrlList(content);
                 for (String s : team) {
@@ -231,8 +233,12 @@ public class MovieSpiderDemoFrame extends javax.swing.JFrame implements IDownloa
 
                 printLogText("页面分析完成，共找到" + team.size() + "个快播地址");
             } else if (avd.downloaderID.startsWith("contentresolve")) {
+                            ArrayList<String> hotVideos = new ArrayList<String>();
+            hotVideos.add("大上海");
+            hotVideos.add("一路向西");
                 String showStr = "";
                 printLogText("片名：" + MovieContentHelper.getMovieName(content));
+                printLogText("演员：" + MovieContentHelper.getMoviePlayActor(content, hotVideos));
                 printLogText("图片：" + MovieContentHelper.getMovieImageUrl(content));
                 printLogText("介绍：" + MovieContentHelper.getMovieDetailText(content));
                 printLogText("Qvod地址：");

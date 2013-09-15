@@ -128,11 +128,11 @@ public class MovieContentHelper {
 
     /**
      * 获取剧集分类页面中下一页按钮的链接
+     *
      * @param content
-     * @return 
+     * @return
      */
-    public static String getMovieNextPageUrl(String content) 
-    {
+    public static String getMovieNextPageUrl(String content) {
         ArrayList<String> result = RegularHelper.getAllURLAndTitleInLink(content);
         String resultStr = "";
         for (String s : result) {
@@ -143,26 +143,54 @@ public class MovieContentHelper {
         }
         return resultStr.replace("\"", "").replace("'", "").replace("<a class=", "").replace("next", "").replace("href=", "").replace(">下一页</a>", "");
     }
-    
+
     /**
      * 获取频道链接列表
-     * @return 
+     *
+     * @return
      */
-    public static ArrayList<String> getMovieChannelPageUrlList(String content)
-    {
+    public static ArrayList<String> getMovieChannelPageUrlList(String content) {
         ArrayList<String> team = RegularHelper.getAllURLAndTitleInLink(content);
         ArrayList<String> resultList = new ArrayList<String>();
-        for(String s : team)
-        {
+        for (String s : team) {
             s = s.replace("\"", "").replace("'", "").replace("<a href=", "").replace("><span>", "").replace("</span></a>", "").replace("target=_blank", "").replace("</a>", "").replace(">", "").replace(" ", "").replace("html", "html,").trim();
-            if (s.contains("channel/?") && !s.contains("更多") && !s.contains("em"))
-            {
-                if (!resultList.contains(s))
-                {
-                   resultList.add(s);
+            if (s.contains("channel/?") && !s.contains("更多") && !s.contains("em")) {
+                if (!resultList.contains(s)) {
+                    resultList.add(s);
                 }
             }
         }
         return resultList;
+    }
+
+    /**
+     * 获取演员信息
+     *
+     * @return
+     */
+    public static String getMoviePlayActor(String content, ArrayList<String> filterList) {
+        ArrayList<String> result = RegularHelper.getAllURLAndTitleInLink(content);
+        ArrayList<String> playactorList = new ArrayList<String>();
+        String resultStr = "";
+        for (String s : result) {
+            if (s.contains("search.asp?searchword=") && !s.contains("><")) {
+                if (!playactorList.contains(s)) {
+                    playactorList.add(s);
+                }
+            }
+        }
+
+        for (String s : playactorList) {
+            s = s.replace("'", "").replace("\"", "").replace("</a>", "").replace("<a href=", "").replace("search.asp?searchword=", "").replace("/", "");
+            s = s.substring(s.indexOf(">") + 1);
+            if (filterList != null) {
+                if (!filterList.contains(s)) {
+                    resultStr += s + ",";
+                }
+            } else {
+                resultStr += s + ",";
+            }
+        }
+        return resultStr;
     }
 }
