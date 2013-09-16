@@ -20,31 +20,26 @@ import org.cnunixclub.helper.MoviePlayUrlHelper;
 import org.cnunixclub.helper.RegularHelper;
 import org.cnunixclub.plugin.CncvodResolve;
 import org.cnunixclub.spider.Interface.IVideoSiteResolveAdapter;
+import org.cnunixclub.spider.Interface.IVideoSiteResolveStatus;
 
 /**
  *
  * @author wcss
  */
-public class MovieSpiderDemoFrame extends javax.swing.JFrame implements IDownloadProgressEvent 
-{
+public class MovieSpiderDemoFrame extends javax.swing.JFrame implements IDownloadProgressEvent, IVideoSiteResolveStatus {
+
     SpiderController sc = new SpiderController();
     IVideoSiteResolveAdapter vsra = new CncvodResolve();
+
     /**
      * Creates new form MovieSpiderDemoFrame
      */
-    public MovieSpiderDemoFrame() {
+    public MovieSpiderDemoFrame(int max, String dbName, String user, String pass) {
         initComponents();
-        sc.isDebuging = true;
-        MySqlHelper.setConnection("moviedb", "root", "wcss123");
-        try {
-            Object obj = MySqlHelper.ExecuteScalar("select count(*) from DataDictionary", null);
-            if (obj != null)
-            {
-                System.out.println("数据可用！返回值：" + obj);
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(MovieSpiderDemoFrame.class.getName()).log(Level.SEVERE, null, ex);
-        }        
+        sc.maxPageCount = max;
+        sc.resolveStatusEvent = this;
+
+        MySqlHelper.setConnection(dbName, user, pass);
     }
 
     /**
@@ -150,8 +145,8 @@ public class MovieSpiderDemoFrame extends javax.swing.JFrame implements IDownloa
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 365, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(lblStatus)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(lblStatus, javax.swing.GroupLayout.DEFAULT_SIZE, 21, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         pack();
@@ -183,52 +178,55 @@ public class MovieSpiderDemoFrame extends javax.swing.JFrame implements IDownloa
     private void btnStartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStartActionPerformed
         try {
             // TODO add your handling code here:
-            sc.start(this.vsra,"www.cncvod.com",true);
+            this.btnStart.setEnabled(false);
+            sc.start(this.vsra, "www.cncvod.com", true);
         } catch (Exception ex) {
             Logger.getLogger(MovieSpiderDemoFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_btnStartActionPerformed
 
-    private void printLogText(String cnt)
-    {
+    private void printLogText(String cnt) {
         String oldContent = this.txtResult.getText();
         oldContent += cnt + "\n";
         this.txtResult.setText(oldContent);
     }
-    
+
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        if (args == null || (args != null && args.length >= 4)) {
+        } else {
+            /* Set the Nimbus look and feel */
+            //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
+             * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+             */
+            try {
+                for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                    if ("Nimbus".equals(info.getName())) {
+                        javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                        break;
+                    }
                 }
+            } catch (ClassNotFoundException ex) {
+                java.util.logging.Logger.getLogger(MovieSpiderDemoFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            } catch (InstantiationException ex) {
+                java.util.logging.Logger.getLogger(MovieSpiderDemoFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            } catch (IllegalAccessException ex) {
+                java.util.logging.Logger.getLogger(MovieSpiderDemoFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+                java.util.logging.Logger.getLogger(MovieSpiderDemoFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(MovieSpiderDemoFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(MovieSpiderDemoFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(MovieSpiderDemoFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(MovieSpiderDemoFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
+            //</editor-fold>
 
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new MovieSpiderDemoFrame().setVisible(true);
-            }
-        });
+            /* Create and display the form */
+            java.awt.EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    new MovieSpiderDemoFrame(2, "moviedb", "root", "wcss123").setVisible(true);
+                }
+            });
+        }
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnGetContent;
@@ -274,9 +272,9 @@ public class MovieSpiderDemoFrame extends javax.swing.JFrame implements IDownloa
 
                 printLogText("页面分析完成，共找到" + team.size() + "个快播地址");
             } else if (avd.downloaderID.startsWith("contentresolve")) {
-                            ArrayList<String> hotVideos = new ArrayList<String>();
-            hotVideos.add("大上海");
-            hotVideos.add("一路向西");
+                ArrayList<String> hotVideos = new ArrayList<String>();
+                hotVideos.add("大上海");
+                hotVideos.add("一路向西");
                 String showStr = "";
                 printLogText("片名：" + MovieContentHelper.getMovieName(content));
                 printLogText("演员：" + MovieContentHelper.getMoviePlayActor(content, hotVideos));
@@ -284,10 +282,9 @@ public class MovieSpiderDemoFrame extends javax.swing.JFrame implements IDownloa
                 printLogText("介绍：" + MovieContentHelper.getMovieDetailText(content));
                 printLogText("Qvod地址：");
                 ArrayList<String> team = MovieContentHelper.getPlayPageUrlList(content);
-                if (team.size() > 0)
-                {
-                   String currentPlayPage = "http://www.cncvod.com/" + team.get(0);
-                   HTMLDownloader.downloadFile("qvodfinder", currentPlayPage, this);
+                if (team.size() > 0) {
+                    String currentPlayPage = "http://www.cncvod.com/" + team.get(0);
+                    HTMLDownloader.downloadFile("qvodfinder", currentPlayPage, this);
                 }
 
                 //this.lblStatus.setText("页面分析完成，共找到" + team.size() + "个记录");
@@ -298,8 +295,22 @@ public class MovieSpiderDemoFrame extends javax.swing.JFrame implements IDownloa
     }
 
     @Override
-    public void onReportStatus(AVideoDownloader avd, String string) 
-    {
-        
+    public void onReportStatus(AVideoDownloader avd, String string) {
+    }
+    int textrowcount = 0;
+
+    @Override
+    public void processResolveStatus(IVideoSiteResolveAdapter ivsra, int i, Object o) {
+        textrowcount++;
+        if (textrowcount >= 40) {
+            try {
+                JAppToolKit.JDataHelper.appendLineToFileEnd(JAppToolKit.JRunHelper.getUserHomeDirPath() + "/spider.log", this.txtResult.getText());
+            } catch (Exception ex) {
+                Logger.getLogger(MovieSpiderDemoFrame.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            textrowcount = 0;
+            this.txtResult.setText("");
+        }
+        printLogText(o + "");
     }
 }
