@@ -6,26 +6,45 @@ package org.cnunixclub.ui;
 
 import Interface.AVideoDownloader;
 import Interface.IDownloadProgressEvent;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.cnunixclub.controller.SpiderController;
+import org.cnunixclub.db.MovieDBHelper;
+import org.cnunixclub.db.MySqlHelper;
 import org.cnunixclub.helper.HTMLDownloader;
 import org.cnunixclub.helper.MovieContentHelperWithDD13;
 import org.cnunixclub.helper.MovieContentHelper;
 import org.cnunixclub.helper.MoviePlayUrlHelper;
 import org.cnunixclub.helper.RegularHelper;
+import org.cnunixclub.plugin.CncvodResolve;
+import org.cnunixclub.spider.Interface.IVideoSiteResolveAdapter;
 
 /**
  *
  * @author wcss
  */
-public class MovieSpiderDemoFrame extends javax.swing.JFrame implements IDownloadProgressEvent {
-
+public class MovieSpiderDemoFrame extends javax.swing.JFrame implements IDownloadProgressEvent 
+{
+    SpiderController sc = new SpiderController();
+    IVideoSiteResolveAdapter vsra = new CncvodResolve();
     /**
      * Creates new form MovieSpiderDemoFrame
      */
     public MovieSpiderDemoFrame() {
         initComponents();
+        sc.isDebuging = true;
+        MySqlHelper.setConnection("moviedb", "root", "wcss123");
+        try {
+            Object obj = MySqlHelper.ExecuteScalar("select count(*) from DataDictionary", null);
+            if (obj != null)
+            {
+                System.out.println("数据可用！返回值：" + obj);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(MovieSpiderDemoFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }        
     }
 
     /**
@@ -46,6 +65,7 @@ public class MovieSpiderDemoFrame extends javax.swing.JFrame implements IDownloa
         jScrollPane1 = new javax.swing.JScrollPane();
         txtResult = new javax.swing.JEditorPane();
         lblStatus = new javax.swing.JLabel();
+        btnStart = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -77,6 +97,13 @@ public class MovieSpiderDemoFrame extends javax.swing.JFrame implements IDownloa
         jScrollPane1.setAutoscrolls(true);
         jScrollPane1.setViewportView(txtResult);
 
+        btnStart.setText("分析主站");
+        btnStart.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnStartActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -84,7 +111,6 @@ public class MovieSpiderDemoFrame extends javax.swing.JFrame implements IDownloa
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel1)
@@ -99,7 +125,9 @@ public class MovieSpiderDemoFrame extends javax.swing.JFrame implements IDownloa
                                 .addComponent(txtConentUrl, javax.swing.GroupLayout.PREFERRED_SIZE, 417, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(btnGetContent)))
-                        .addGap(0, 0, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnStart))
+                    .addComponent(jScrollPane1)
                     .addComponent(lblStatus, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
@@ -107,20 +135,23 @@ public class MovieSpiderDemoFrame extends javax.swing.JFrame implements IDownloa
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(txtConentUrl, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnGetContent))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel1)
+                            .addComponent(txtConentUrl, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnGetContent))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel2)
+                            .addComponent(txtPlayUrl, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnGetPlay)))
+                    .addComponent(btnStart, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(txtPlayUrl, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnGetPlay))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 347, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 365, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(lblStatus)
-                .addContainerGap(27, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -148,6 +179,15 @@ public class MovieSpiderDemoFrame extends javax.swing.JFrame implements IDownloa
             Logger.getLogger(MovieSpiderDemoFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_btnGetContentActionPerformed
+
+    private void btnStartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStartActionPerformed
+        try {
+            // TODO add your handling code here:
+            sc.start(this.vsra,"www.cncvod.com",true);
+        } catch (Exception ex) {
+            Logger.getLogger(MovieSpiderDemoFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_btnStartActionPerformed
 
     private void printLogText(String cnt)
     {
@@ -193,6 +233,7 @@ public class MovieSpiderDemoFrame extends javax.swing.JFrame implements IDownloa
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnGetContent;
     private javax.swing.JButton btnGetPlay;
+    private javax.swing.JButton btnStart;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;
