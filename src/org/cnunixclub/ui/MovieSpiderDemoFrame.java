@@ -4,29 +4,25 @@
  */
 package org.cnunixclub.ui;
 
-import Interface.AVideoDownloader;
-import Interface.IDownloadProgressEvent;
-import java.sql.SQLException;
+import Interface.IDownloaderPlugin;
+import Interface.IDownloaderEvent;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.cnunixclub.controller.SpiderController;
-import org.cnunixclub.db.MovieDBHelper;
 import org.cnunixclub.db.MySqlHelper;
-import org.cnunixclub.helper.HTMLDownloader;
-import org.cnunixclub.helper.MovieContentHelperWithDD13;
 import org.cnunixclub.helper.MovieContentHelper;
 import org.cnunixclub.helper.MoviePlayUrlHelper;
-import org.cnunixclub.helper.RegularHelper;
 import org.cnunixclub.plugin.CncvodResolve;
 import org.cnunixclub.spider.Interface.IVideoSiteResolveAdapter;
 import org.cnunixclub.spider.Interface.IVideoSiteResolveStatus;
+import org.cnunixclub.spider.helper.HTMLDownloader;
 
 /**
  *
  * @author wcss
  */
-public class MovieSpiderDemoFrame extends javax.swing.JFrame implements IDownloadProgressEvent, IVideoSiteResolveStatus {
+public class MovieSpiderDemoFrame extends javax.swing.JFrame implements IDownloaderEvent, IVideoSiteResolveStatus {
 
     SpiderController sc = new SpiderController();
     IVideoSiteResolveAdapter vsra = new CncvodResolve();
@@ -156,7 +152,7 @@ public class MovieSpiderDemoFrame extends javax.swing.JFrame implements IDownloa
         try {
             // TODO add your handling code here:
             this.lblStatus.setText("正在下载页面，请稍后......");
-            HTMLDownloader.downloadFile("qvodfinder", this.txtPlayUrl.getText(), this);
+            //HTMLDownloader.downloadFile("qvodfinder", this.txtPlayUrl.getText(), this);
             this.txtResult.setText("");
         } catch (Exception ex) {
             Logger.getLogger(MovieSpiderDemoFrame.class.getName()).log(Level.SEVERE, null, ex);
@@ -168,7 +164,7 @@ public class MovieSpiderDemoFrame extends javax.swing.JFrame implements IDownloa
         try {
             // TODO add your handling code here:
             this.lblStatus.setText("正在下载页面，请稍后......");
-            HTMLDownloader.downloadFile("contentresolve", this.txtConentUrl.getText(), this);
+//            HTMLDownloader.downloadFile("contentresolve", this.txtConentUrl.getText(), this);
             this.txtResult.setText("");
         } catch (Exception ex) {
             Logger.getLogger(MovieSpiderDemoFrame.class.getName()).log(Level.SEVERE, null, ex);
@@ -241,76 +237,101 @@ public class MovieSpiderDemoFrame extends javax.swing.JFrame implements IDownloa
     private javax.swing.JEditorPane txtResult;
     // End of variables declaration//GEN-END:variables
 
-    @Override
-    public void onReportProgress(AVideoDownloader avd, long l, long l1) {
-    }
-
-    @Override
-    public void onReportError(AVideoDownloader avd, String string, String string1) {
-        this.lblStatus.setText("页面下载出错！");
-    }
-
-    @Override
-    public void onReportFinish(AVideoDownloader avd) {
-        this.lblStatus.setText("页面下载完成，正在分析......");
-        try {
-            String content = HTMLDownloader.readAllTextFromFileWithGBK(avd.getVideoBufferUrl());
-//            ArrayList<String> team = MovieContentHelper.getMovieChannelPageUrlList(content);
-//            for(String s : team)
-//            {
-//               printLogText(s);
+//    @Override
+//    public void onReportProgress(AVideoDownloader avd, long l, long l1) {
+//    }
+//
+//    @Override
+//    public void onReportError(AVideoDownloader avd, String string, String string1) {
+//        this.lblStatus.setText("页面下载出错！");
+//    }
+//
+//    @Override
+//    public void onReportFinish(AVideoDownloader avd) {
+//        this.lblStatus.setText("页面下载完成，正在分析......");
+//        try {
+//            String content = HTMLDownloader.readAllTextFromFileWithGBK(avd.getVideoBufferUrl());
+////            ArrayList<String> team = MovieContentHelper.getMovieChannelPageUrlList(content);
+////            for(String s : team)
+////            {
+////               printLogText(s);
+////            }
+////            ArrayList<String> hotVideos = new ArrayList<String>();
+////            hotVideos.add("大上海");
+////            hotVideos.add("一路向西");
+////            printLogText(MovieContentHelper.getMoviePlayActor(content,hotVideos));
+//            if (avd.downloaderID.startsWith("qvodfinder")) {
+//                ArrayList<String> team = MoviePlayUrlHelper.getQvodUrlList(content);
+//                for (String s : team) {
+//                    printLogText(s);
+//                }
+//
+//                printLogText("页面分析完成，共找到" + team.size() + "个快播地址");
+//            } else if (avd.downloaderID.startsWith("contentresolve")) {
+//                ArrayList<String> hotVideos = new ArrayList<String>();
+//                hotVideos.add("大上海");
+//                hotVideos.add("一路向西");
+//                String showStr = "";
+//                printLogText("片名：" + MovieContentHelper.getMovieName(content));
+//                printLogText("演员：" + MovieContentHelper.getMoviePlayActor(content, hotVideos));
+//                printLogText("图片：" + MovieContentHelper.getMovieImageUrl(content));
+//                printLogText("介绍：" + MovieContentHelper.getMovieDetailText(content));
+//                printLogText("Qvod地址：");
+//                ArrayList<String> team = MovieContentHelper.getPlayPageUrlList(content);
+//                if (team.size() > 0) {
+//                    String currentPlayPage = "http://www.cncvod.com/" + team.get(0);
+//                    HTMLDownloader.downloadFile("qvodfinder", currentPlayPage, this);
+//                }
+//
+//                //this.lblStatus.setText("页面分析完成，共找到" + team.size() + "个记录");
 //            }
-//            ArrayList<String> hotVideos = new ArrayList<String>();
-//            hotVideos.add("大上海");
-//            hotVideos.add("一路向西");
-//            printLogText(MovieContentHelper.getMoviePlayActor(content,hotVideos));
-            if (avd.downloaderID.startsWith("qvodfinder")) {
-                ArrayList<String> team = MoviePlayUrlHelper.getQvodUrlList(content);
-                for (String s : team) {
-                    printLogText(s);
-                }
+//        } catch (Exception ex) {
+//            Logger.getLogger(MovieSpiderDemoFrame.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//    }
+//
+//    @Override
+//    public void onReportStatus(AVideoDownloader avd, String string) {
+//    }
+//    int textrowcount = 0;
+//
+//    @Override
+//    public void processResolveStatus(IVideoSiteResolveAdapter ivsra, int i, Object o) {
+//        textrowcount++;
+//        if (textrowcount >= 40) {
+//            try {
+//                JAppToolKit.JDataHelper.appendLineToFileEnd(JAppToolKit.JRunHelper.getUserHomeDirPath() + "/spider.log", this.txtResult.getText());
+//            } catch (Exception ex) {
+//                Logger.getLogger(MovieSpiderDemoFrame.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+//            textrowcount = 0;
+//            this.txtResult.setText("");
+//        }
+//        printLogText(o + "");
+//    }
+//
+//    @Override
+//    public void onReportProgress(IDownloaderPlugin idp, int findex, long cur, long total) {
+//        
+//    }
+//
+//    @Override
+//    public void onReportStatus(IDownloaderPlugin idp, int code, String string) {
+//        
+//    }
 
-                printLogText("页面分析完成，共找到" + team.size() + "个快播地址");
-            } else if (avd.downloaderID.startsWith("contentresolve")) {
-                ArrayList<String> hotVideos = new ArrayList<String>();
-                hotVideos.add("大上海");
-                hotVideos.add("一路向西");
-                String showStr = "";
-                printLogText("片名：" + MovieContentHelper.getMovieName(content));
-                printLogText("演员：" + MovieContentHelper.getMoviePlayActor(content, hotVideos));
-                printLogText("图片：" + MovieContentHelper.getMovieImageUrl(content));
-                printLogText("介绍：" + MovieContentHelper.getMovieDetailText(content));
-                printLogText("Qvod地址：");
-                ArrayList<String> team = MovieContentHelper.getPlayPageUrlList(content);
-                if (team.size() > 0) {
-                    String currentPlayPage = "http://www.cncvod.com/" + team.get(0);
-                    HTMLDownloader.downloadFile("qvodfinder", currentPlayPage, this);
-                }
-
-                //this.lblStatus.setText("页面分析完成，共找到" + team.size() + "个记录");
-            }
-        } catch (Exception ex) {
-            Logger.getLogger(MovieSpiderDemoFrame.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    @Override
+    public void onReportProgress(IDownloaderPlugin idp, int i, long l, long l1) {
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void onReportStatus(AVideoDownloader avd, String string) {
+    public void onReportStatus(IDownloaderPlugin idp, int i, String string) {
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    int textrowcount = 0;
 
     @Override
     public void processResolveStatus(IVideoSiteResolveAdapter ivsra, int i, Object o) {
-        textrowcount++;
-        if (textrowcount >= 40) {
-            try {
-                JAppToolKit.JDataHelper.appendLineToFileEnd(JAppToolKit.JRunHelper.getUserHomeDirPath() + "/spider.log", this.txtResult.getText());
-            } catch (Exception ex) {
-                Logger.getLogger(MovieSpiderDemoFrame.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            textrowcount = 0;
-            this.txtResult.setText("");
-        }
-        printLogText(o + "");
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

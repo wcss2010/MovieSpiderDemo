@@ -5,6 +5,7 @@
 package org.cnunixclub.helper;
 
 import java.util.ArrayList;
+import org.cnunixclub.spider.helper.RegularHelper;
 
 /**
  * 影片播放地址分析(快播或百度影音)

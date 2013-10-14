@@ -6,6 +6,7 @@ package org.cnunixclub.helper;
 
 import java.io.File;
 import java.util.ArrayList;
+import org.cnunixclub.spider.helper.RegularHelper;
 
 /**
  * 影片内容分析类
