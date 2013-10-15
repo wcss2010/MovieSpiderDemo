@@ -4,7 +4,10 @@
  */
 package org.cnunixclub.ui;
 
+import com.sun.net.httpserver.HttpServer;
 import java.io.File;
+import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.cnunixclub.controller.SpiderController;
@@ -23,6 +26,7 @@ public class ConsoleSpider implements Runnable, IVideoSiteResolveStatus {
     static IVideoSiteResolveAdapter vsra = new CncvodResolve();
     static Thread tt = null;
     static Boolean isRunSpider = true;
+    static HttpServer hs = null;
 
     public static void main(String[] args) {
         if (args.length >= 4) {
@@ -34,7 +38,7 @@ public class ConsoleSpider implements Runnable, IVideoSiteResolveStatus {
                 System.out.println("最大页号：" + sc.maxPageCount + ",数据库名：" + args[1] + ",用户名：" + args[2] + ",密码：" + args[3]);
                 sc.start(vsra, "www.cncvod.com", true);
                 tt = new Thread(obj);
-                tt.start();
+                tt.start();                           
             } catch (Exception ex) {
                 Logger.getLogger(ConsoleSpider.class.getName()).log(Level.SEVERE, null, ex);
                 System.out.println("参数错误！ex:" + ex.toString());
@@ -44,8 +48,22 @@ public class ConsoleSpider implements Runnable, IVideoSiteResolveStatus {
         }
     }
 
+    public static void startHTTPServers() {
+        try {
+            hs = HttpServer.create(new InetSocketAddress(43922), 0);//设置HttpServer的端口为8888
+            hs.createContext("/test", new MyHandler());//用MyHandler类内处理到/chinajash的请求
+            hs.setExecutor(null); // creates a default executor
+            hs.start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
-    public void run() {
+    public void run() 
+    {
+        startHTTPServers();
+        
         while (isRunSpider) {
             try {
                 Thread.sleep(1000);
@@ -56,13 +74,17 @@ public class ConsoleSpider implements Runnable, IVideoSiteResolveStatus {
 
     }
     int textrowcount = 0;
-    String logText = "";
+    static String logText = "";
+
+    public static String getSpiderWorkStatus() {
+        return sc.getWorkeStatus() + "\n当前日志:\n" + logText;
+    }
 
     @Override
     public void processResolveStatus(IVideoSiteResolveAdapter ivsra, int i, Object o) {
         if (sc.printLogStatusValue == i) {
             textrowcount++;
-            if (textrowcount >= 40) {
+            if (textrowcount >= 20) {
                 try {
                     JAppToolKit.JDataHelper.writeAllLines(JAppToolKit.JRunHelper.getUserHomeDirPath() + "/spider.log", new String[]{logText});
                 } catch (Exception ex) {
@@ -74,9 +96,14 @@ public class ConsoleSpider implements Runnable, IVideoSiteResolveStatus {
             }
 
             logText += o + "\n";
-            System.out.println(o + "");
+            
+            System.out.println(getSpiderWorkStatus());
         } else if (i == sc.finishSpiderTaskStatusValue) {
             isRunSpider = false;
+            if (hs != null)
+            {
+               hs.stop(0);
+            }
         }
     }
 }
