@@ -21,6 +21,8 @@ public class ConsoleSpider implements Runnable, IVideoSiteResolveStatus {
 
     static SpiderController sc = new SpiderController();
     static IVideoSiteResolveAdapter vsra = new CncvodResolve();
+    static Thread tt = null;
+    static Boolean isRunSpider = true;
 
     public static void main(String[] args) {
         if (args.length >= 4) {
@@ -31,7 +33,8 @@ public class ConsoleSpider implements Runnable, IVideoSiteResolveStatus {
                 MySqlHelper.setConnection(args[1], args[2], args[3]);
                 System.out.println("最大页号：" + sc.maxPageCount + ",数据库名：" + args[1] + ",用户名：" + args[2] + ",密码：" + args[3]);
                 sc.start(vsra, "www.cncvod.com", true);
-                new Thread(obj).start();
+                tt = new Thread(obj);
+                tt.start();
             } catch (Exception ex) {
                 Logger.getLogger(ConsoleSpider.class.getName()).log(Level.SEVERE, null, ex);
                 System.out.println("参数错误！ex:" + ex.toString());
@@ -43,7 +46,7 @@ public class ConsoleSpider implements Runnable, IVideoSiteResolveStatus {
 
     @Override
     public void run() {
-        while (true) {
+        while (isRunSpider) {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException ex) {
@@ -57,26 +60,23 @@ public class ConsoleSpider implements Runnable, IVideoSiteResolveStatus {
 
     @Override
     public void processResolveStatus(IVideoSiteResolveAdapter ivsra, int i, Object o) {
-        textrowcount++;
-        if (textrowcount >= 40) {
-            if (new File(JAppToolKit.JRunHelper.getUserHomeDirPath() + "/spider.log").exists()) {
-                try {
-                    JAppToolKit.JDataHelper.appendLineToFileEnd(JAppToolKit.JRunHelper.getUserHomeDirPath() + "/spider.log", logText);
-                } catch (Exception ex) {
-                    Logger.getLogger(MovieSpiderDemoFrame.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            } else {
+        if (sc.printLogStatusValue == i) {
+            textrowcount++;
+            if (textrowcount >= 40) {
                 try {
                     JAppToolKit.JDataHelper.writeAllLines(JAppToolKit.JRunHelper.getUserHomeDirPath() + "/spider.log", new String[]{logText});
                 } catch (Exception ex) {
                     Logger.getLogger(ConsoleSpider.class.getName()).log(Level.SEVERE, null, ex);
                 }
-            }
-            textrowcount = 0;
-            logText = "";
-        }
 
-        logText += o + "\n";
-        System.out.println(o + "");
+                textrowcount = 0;
+                logText = "";
+            }
+
+            logText += o + "\n";
+            System.out.println(o + "");
+        } else if (i == sc.finishSpiderTaskStatusValue) {
+            isRunSpider = false;
+        }
     }
 }
