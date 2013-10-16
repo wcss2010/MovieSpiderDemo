@@ -97,7 +97,7 @@ public class ConsoleSpider implements Runnable, IVideoSiteResolveStatus {
 
             logText += o + "\n";
             
-            System.out.println(getSpiderWorkStatus());
+            //System.out.println(getSpiderWorkStatus());
         } else if (i == sc.finishSpiderTaskStatusValue) {
             isRunSpider = false;
             if (hs != null)

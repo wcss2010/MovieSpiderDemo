@@ -78,6 +78,7 @@ public class SpiderController implements IDownloaderEvent {
     public int finishSpiderTaskStatusValue = 100;
     public Boolean onlyResoveFirstPlayPage = true;
     public int downloadedMovieCount = 0;
+    public String nextChannelPagingUrl = "";
 
     /**
      * 投递解析状态事件
@@ -229,36 +230,29 @@ public class SpiderController implements IDownloaderEvent {
                     Logger.getLogger(SpiderController.class.getName()).log(Level.SEVERE, null, ex);
                 }
             } else if (sender.downloaderID.startsWith("channel")) {
-                String nextPage = this.currentResolveAdapter.getNextPageUrl(getHtmlContent(sender, 0));
-                printLogText("找到下一页地址：" + nextPage);
-                if (this.currentChannelPagingBufferList.contains(nextPage) || this.currentChannelPagingBufferList.size() > maxPageCount) {
-                    //搜索完成                    
-                    this.currentChannelPagingBufferList.clear();
+                nextChannelPagingUrl = this.currentResolveAdapter.getNextPageUrl(getHtmlContent(sender, 0));
+                printLogText("找到下一页地址：" + nextChannelPagingUrl);
 
-                    try {
-                        System.out.println("搜索分页完毕！开始下载内容页，总数：" + this.queueContentList.size());
-                        this.downloadAllContentPage();
-                    } catch (Exception ex) {
-                        Logger.getLogger(SpiderController.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                } else {
-                    //继续搜索
-                    this.currentChannelPagingBufferList.add(nextPage);
+                if (this.currentChannelPagingBufferList.contains(nextChannelPagingUrl) || this.currentChannelPagingBufferList.size() > maxPageCount) {
+                    nextChannelPagingUrl = "";
+                }
+                
+                this.currentChannelPagingBufferList.add(nextChannelPagingUrl);
 
-                    String[] list = this.currentResolveAdapter.getChannelContentURLList(getHtmlContent(sender, 0));
-                    for (String s : list) {
-                        if (!this.queueContentList.contains(s)) {
-                            printLogText("内容页入队！地址：" + s + "\n");
-                            this.queueContentList.offer(s);
-                        }
-                    }
-
-                    try {
-                        downloadTask("channel", new String[]{nextPage});
-                    } catch (Exception ex) {
-                        Logger.getLogger(SpiderController.class.getName()).log(Level.SEVERE, null, ex);
+                String[] list = this.currentResolveAdapter.getChannelContentURLList(getHtmlContent(sender, 0));
+                for (String s : list) {
+                    if (!this.queueContentList.contains(s)) {
+                        printLogText("内容页入队！地址：" + s + "\n");
+                        this.queueContentList.offer(s);
                     }
                 }
+
+                try {
+                    this.downloadAllContentPage();
+                } catch (Exception ex) {
+                    Logger.getLogger(SpiderController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
             } else if (sender.downloaderID.startsWith("content")) {
 
                 //将下载完成的缓冲文件路径加载到队列中
@@ -299,14 +293,24 @@ public class SpiderController implements IDownloaderEvent {
                 if (this.queueContentBufferList.size() > 0) {
                     getNextMovieContent();
                 } else {
-                    if (queueChannelList.size() > 0) {
+                    if (nextChannelPagingUrl == null || (nextChannelPagingUrl != null && nextChannelPagingUrl.isEmpty())) {
+                        if (queueChannelList.size() > 0) {
+                            try {
+                                currentChannelPagingBufferList.clear();
+
+                                this.downloadNextChannelPage();
+                            } catch (Exception ex) {
+                                Logger.getLogger(SpiderController.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        } else {
+                            this.finishSpiderTask();
+                        }
+                    } else {
                         try {
-                            this.downloadNextChannelPage();
+                            this.downloadTask("channel", new String[]{this.nextChannelPagingUrl});
                         } catch (Exception ex) {
                             Logger.getLogger(SpiderController.class.getName()).log(Level.SEVERE, null, ex);
                         }
-                    } else {
-                        this.finishSpiderTask();
                     }
                 }
             }
@@ -317,23 +321,27 @@ public class SpiderController implements IDownloaderEvent {
                 Logger.getLogger(SpiderController.class.getName()).log(Level.SEVERE, null, ex);
             }
             try {
-                DownloaderManager.manager.clearDownloader(sender.downloaderID);
+                DownloaderManager.manager.clearDownloaderBufferDir(sender.downloaderID);
             } catch (Exception ex) {
                 Logger.getLogger(SpiderController.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
 
-    private void saveVideo(VideoInfo videoInfo, String[] qvods)
-    {
+    private void saveVideo(VideoInfo videoInfo, String[] qvods) {
         downloadedMovieCount++;
-        
+
         if (videoInfo != null && qvods != null) {
             int mid = 0;
             try {
                 mid = MovieDBHelper.getMovieId(videoInfo.name);
+
+
+
+
             } catch (SQLException ex) {
-                Logger.getLogger(SpiderController.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(SpiderController.class
+                        .getName()).log(Level.SEVERE, null, ex);
             }
 
             if (mid <= 0) {
@@ -343,9 +351,14 @@ public class SpiderController implements IDownloaderEvent {
                     mid = MovieDBHelper.getMovieId(videoInfo.name);
                     for (String s : qvods) {
                         MovieDBHelper.addMovieUrl(mid, "qvod", s);
+
+
+
+
                     }
                 } catch (Exception ex) {
-                    Logger.getLogger(SpiderController.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(SpiderController.class
+                            .getName()).log(Level.SEVERE, null, ex);
                 }
             } else {
                 printLogText("该影片已存在！片名：" + videoInfo.name);
@@ -363,31 +376,29 @@ public class SpiderController implements IDownloaderEvent {
 
     /**
      * 检查当前工作状态
-     * @return 
+     *
+     * @return
      */
-    public String getWorkeStatus()
-    {
+    public String getWorkeStatus() {
         String result = "";
-        if (this.currentVideoChannel != null)
-        {
-           result += "当前正在下载的频道：" + this.currentVideoChannel.name + "\n";
+        if (this.currentVideoChannel != null) {
+            result += "当前正在下载的频道：" + this.currentVideoChannel.name + "\n";
         }
-        if (this.queueChannelList != null)
-        {
-           result += "当前剩余频道数：" + this.queueChannelList.size() + "\n";
+        if (this.queueChannelList != null) {
+            result += "当前剩余频道数：" + this.queueChannelList.size() + "\n";
         }
-        
-        if (this.currentVideoInfo != null)
-        {
-           result += "当前正在下载的影片：" + this.currentVideoInfo.name + "\n";
+
+        if (this.currentVideoInfo != null) {
+            result += "当前正在下载的影片：" + this.currentVideoInfo.name + "\n";
         }
-        
+
         result += "已搜索到的影片数：" + this.queueContentList.size() + "\n";
         result += "已下载的影片内容页数量：" + this.queueContentBufferList.size() + "\n";
         result += "已下载影片数：" + downloadedMovieCount + "\n";
+        result += "下一个要分析的分页：" + this.nextChannelPagingUrl + "\n";
         return result;
     }
-    
+
     /**
      * 下载影片数据
      */
@@ -396,8 +407,13 @@ public class SpiderController implements IDownloaderEvent {
             //获取当前页内容
             resolveContent = getNextMovieContentQueueTxt();
             currentVideoInfo = this.currentResolveAdapter.getVideoInfoObj(resolveContent);
+
+
+
+
         } catch (Exception ex) {
-            Logger.getLogger(SpiderController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SpiderController.class
+                    .getName()).log(Level.SEVERE, null, ex);
         }
 
         if (currentVideoInfo != null) {
@@ -408,14 +424,24 @@ public class SpiderController implements IDownloaderEvent {
                 if (onlyResoveFirstPlayPage) {
                     try {
                         this.downloadTask("play", new String[]{ss[0]});
+
+
+
+
                     } catch (Exception ex) {
-                        Logger.getLogger(SpiderController.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(SpiderController.class
+                                .getName()).log(Level.SEVERE, null, ex);
                     }
                 } else {
                     try {
                         this.downloadTask("play", ss);
+
+
+
+
                     } catch (Exception ex) {
-                        Logger.getLogger(SpiderController.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(SpiderController.class
+                                .getName()).log(Level.SEVERE, null, ex);
                     }
                 }
             }
