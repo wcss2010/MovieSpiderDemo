@@ -79,6 +79,7 @@ public class SpiderController implements IDownloaderEvent {
     public Boolean onlyResoveFirstPlayPage = true;
     public int downloadedMovieCount = 0;
     public String nextChannelPagingUrl = "";
+    public int jumpChannelCount = 0;
 
     /**
      * 投递解析状态事件
@@ -107,8 +108,9 @@ public class SpiderController implements IDownloaderEvent {
      * @param adapter
      * @param url
      */
-    public void start(IVideoSiteResolveAdapter adapter, String url, Boolean isReloadAll) throws Exception {
+    public void start(IVideoSiteResolveAdapter adapter, String url, int jumpchannelnum, Boolean isReloadAll) throws Exception {
         if (adapter != null && url != null && !url.isEmpty()) {
+            this.jumpChannelCount = jumpchannelnum;
             this.currentResolveAdapter = adapter;
             String[] support = this.currentResolveAdapter.getSupportVideoSiteUrlList();
             this.currentResolveAdapter.currentSiteUrl = url;
@@ -183,6 +185,8 @@ public class SpiderController implements IDownloaderEvent {
             onReportFinish(idp);
         } else if (code == DownloadStatus.downloadError) {
             printLogText(msg);
+        } else if (code == DownloadStatus.downloadAgain) {
+            printLogText(msg);
         }
     }
 
@@ -220,9 +224,13 @@ public class SpiderController implements IDownloaderEvent {
             if (sender.downloaderID.startsWith("homepage")) {
                 try {
                     VideoChannelInfo[] channels = this.currentResolveAdapter.getChannelList(getHtmlContent(sender, 0));
+                    int jumpIndex = 0;
                     for (VideoChannelInfo vci : channels) {
-                        this.channelList.add(vci);
-                        this.queueChannelList.offer(vci);
+                        jumpIndex++;
+                        if (jumpChannelCount == 0 || jumpIndex > jumpChannelCount) {
+                            this.channelList.add(vci);
+                            this.queueChannelList.offer(vci);
+                        }
                     }
                     this.saveChannel(channels);
                     this.downloadNextChannelPage();

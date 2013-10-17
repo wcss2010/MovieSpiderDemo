@@ -22,23 +22,28 @@ import org.cnunixclub.spider.Interface.IVideoSiteResolveStatus;
  */
 public class ConsoleSpider implements Runnable, IVideoSiteResolveStatus {
 
-    static SpiderController sc = new SpiderController();
+    static SpiderController sc = null;
     static IVideoSiteResolveAdapter vsra = new CncvodResolve();
     static Thread tt = null;
     static Boolean isRunSpider = true;
     static HttpServer hs = null;
+    static ConsoleSpider localObj = new ConsoleSpider();
+    public static int maxPageCountFinal = 0; 
 
     public static void main(String[] args) {
         if (args.length >= 4) {
             try {
-                ConsoleSpider obj = new ConsoleSpider();
-                sc.maxPageCount = Integer.parseInt(args[0]);
-                sc.resolveStatusEvent = obj;
+                System.out.println("最大页号：" + args[0] + ",数据库名：" + args[1] + ",用户名：" + args[2] + ",密码：" + args[3]);
+
+                //设置Mysql参数
                 MySqlHelper.setConnection(args[1], args[2], args[3]);
-                System.out.println("最大页号：" + sc.maxPageCount + ",数据库名：" + args[1] + ",用户名：" + args[2] + ",密码：" + args[3]);
-                sc.start(vsra, "www.cncvod.com", true);
-                tt = new Thread(obj);
-                tt.start();                           
+
+                maxPageCountFinal = Integer.parseInt(args[0]);
+                
+                startSpiderWorker(Integer.parseInt(args[0]), 0);
+
+                tt = new Thread(localObj);
+                tt.start();
             } catch (Exception ex) {
                 Logger.getLogger(ConsoleSpider.class.getName()).log(Level.SEVERE, null, ex);
                 System.out.println("参数错误！ex:" + ex.toString());
@@ -46,6 +51,16 @@ public class ConsoleSpider implements Runnable, IVideoSiteResolveStatus {
         } else {
             System.out.println("参数错误！");
         }
+    }
+
+    public static void startSpiderWorker(int maxCount, int jumpCount) throws Exception {
+        sc = new SpiderController();
+        sc.maxPageCount = maxCount;
+        sc.resolveStatusEvent = localObj;
+        sc.start(vsra, "www.cncvod.com", jumpCount, true);
+
+        System.out.println("最大页号：" + sc.maxPageCount + ",最大跳过的频道数：" + sc.jumpChannelCount);
+        sc.printLogText("最大页号：" + sc.maxPageCount + ",最大跳过的频道数：" + sc.jumpChannelCount);
     }
 
     public static void startHTTPServers() {
@@ -60,10 +75,9 @@ public class ConsoleSpider implements Runnable, IVideoSiteResolveStatus {
     }
 
     @Override
-    public void run() 
-    {
+    public void run() {
         startHTTPServers();
-        
+
         while (isRunSpider) {
             try {
                 Thread.sleep(1000);
@@ -96,13 +110,12 @@ public class ConsoleSpider implements Runnable, IVideoSiteResolveStatus {
             }
 
             logText += o + "\n";
-            
+
             //System.out.println(getSpiderWorkStatus());
         } else if (i == sc.finishSpiderTaskStatusValue) {
             isRunSpider = false;
-            if (hs != null)
-            {
-               hs.stop(0);
+            if (hs != null) {
+                hs.stop(0);
             }
         }
     }
