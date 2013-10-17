@@ -236,7 +236,7 @@ public class SpiderController implements IDownloaderEvent {
                 if (this.currentChannelPagingBufferList.contains(nextChannelPagingUrl) || this.currentChannelPagingBufferList.size() > maxPageCount) {
                     nextChannelPagingUrl = "";
                 }
-                
+
                 this.currentChannelPagingBufferList.add(nextChannelPagingUrl);
 
                 String[] list = this.currentResolveAdapter.getChannelContentURLList(getHtmlContent(sender, 0));
@@ -317,11 +317,6 @@ public class SpiderController implements IDownloaderEvent {
 
             try {
                 DownloaderManager.manager.stopDownloader(sender.downloaderID);
-            } catch (Exception ex) {
-                Logger.getLogger(SpiderController.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            try {
-                DownloaderManager.manager.clearDownloaderBufferDir(sender.downloaderID);
             } catch (Exception ex) {
                 Logger.getLogger(SpiderController.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -407,10 +402,6 @@ public class SpiderController implements IDownloaderEvent {
             //获取当前页内容
             resolveContent = getNextMovieContentQueueTxt();
             currentVideoInfo = this.currentResolveAdapter.getVideoInfoObj(resolveContent);
-
-
-
-
         } catch (Exception ex) {
             Logger.getLogger(SpiderController.class
                     .getName()).log(Level.SEVERE, null, ex);
@@ -419,32 +410,33 @@ public class SpiderController implements IDownloaderEvent {
         if (currentVideoInfo != null) {
             //视频信息获取完成
             printLogText("找到片名：" + currentVideoInfo.name);
-            String[] ss = this.currentResolveAdapter.getVideoUrlList(resolveContent, "page");
-            if (ss != null && ss.length > 0) {
-                if (onlyResoveFirstPlayPage) {
-                    try {
-                        this.downloadTask("play", new String[]{ss[0]});
-
-
-
-
-                    } catch (Exception ex) {
-                        Logger.getLogger(SpiderController.class
-                                .getName()).log(Level.SEVERE, null, ex);
+            try {
+                String[] ss = this.currentResolveAdapter.getVideoUrlList(resolveContent, "page");
+                if (ss != null && ss.length > 0) {
+                    if (onlyResoveFirstPlayPage) {
+                        try {
+                            this.downloadTask("play", new String[]{ss[0]});
+                        } catch (Exception ex) {
+                            Logger.getLogger(SpiderController.class
+                                    .getName()).log(Level.SEVERE, null, ex);
+                        }
+                    } else {
+                        try {
+                            this.downloadTask("play", ss);
+                        } catch (Exception ex) {
+                            Logger.getLogger(SpiderController.class
+                                    .getName()).log(Level.SEVERE, null, ex);
+                        }
                     }
                 } else {
-                    try {
-                        this.downloadTask("play", ss);
-
-
-
-
-                    } catch (Exception ex) {
-                        Logger.getLogger(SpiderController.class
-                                .getName()).log(Level.SEVERE, null, ex);
-                    }
+                    getNextMovieContent();
                 }
+            } catch (Exception ex) {
+                this.printLogText(ex.toString());
+                this.getNextMovieContent();
             }
+        } else {
+            getNextMovieContent();
         }
     }
 
