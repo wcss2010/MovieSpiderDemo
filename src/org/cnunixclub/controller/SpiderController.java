@@ -21,6 +21,7 @@ import org.cnunixclub.spider.Interface.IVideoSiteResolveStatus;
 import org.cnunixclub.spider.Interface.model.VideoChannelInfo;
 import org.cnunixclub.spider.Interface.model.VideoInfo;
 import org.cnunixclub.spider.helper.HTMLDownloader;
+import org.cnunixclub.ui.ConsoleSpider;
 
 /**
  * 数据抓取控制器
@@ -141,8 +142,11 @@ public class SpiderController implements IDownloaderEvent {
      * @param subUrl
      * @throws Exception
      */
-    protected void downloadTask(String type, String[] subUrls) throws Exception {
-        if (this.currentResolveAdapter != null && this.currentResolveAdapter.currentSiteUrl != null) {
+    public void downloadTask(String type, String[] subUrls) throws Exception {
+        if (this.currentResolveAdapter != null && this.currentResolveAdapter.currentSiteUrl != null && ConsoleSpider.currentSpiderTaskContent != null) {
+            ConsoleSpider.currentSpiderTaskContent.taskType = type;
+            ConsoleSpider.currentSpiderTaskContent.urlList = subUrls;            
+            
             String[] destUrls = new String[subUrls.length];
             int fileIndex = 0;
             for (String s : subUrls) {
