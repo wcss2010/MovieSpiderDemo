@@ -85,6 +85,7 @@ public class HTTPResolve implements HttpHandler {
                 ConsoleSpider.quitSpiderService();
             } else if (cmds.startsWith("stop")) {
                 ConsoleSpider.stopSpiderTask();
+                ConsoleSpider.spiderController = null;
                 result = "任务已停止";
             } else if (cmds.startsWith("continue")) {
                 ConsoleSpider.continueCurrentTask();
@@ -108,7 +109,7 @@ public class HTTPResolve implements HttpHandler {
                 result += "服务器地址/test?setmaxpagecount-500 (设置每个分类最大扫描页数为500！)\n";
                 result += "服务器地址/test?quit (退出程序)\n";
                 result += "服务器地址/test?stop (停止当前任务并清理缓冲区)\n";
-                result += "服务器地址/test?pause （暂停当前任务）";
+                result += "服务器地址/test?pause （暂停当前任务）\n";
                 result += "服务器地址/test?continue (重新执行因为超时而失败的任务！)\n";
                 result += "服务器地址/test?help (打印帮助)\n";
             }
