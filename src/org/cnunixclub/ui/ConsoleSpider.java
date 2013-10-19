@@ -92,7 +92,7 @@ public class ConsoleSpider implements Runnable, IVideoSiteResolveStatus {
     public static void startHTTPServers() {
         try {
             hs = HttpServer.create(new InetSocketAddress(43922), 0);//设置HttpServer的端口为8888
-            hs.createContext("/test", new MyHandler());//用MyHandler类内处理到/chinajash的请求
+            hs.createContext("/test", new HTTPResolve());//用MyHandler类内处理到/chinajash的请求
             hs.setExecutor(null); // creates a default executor
             hs.start();
         } catch (IOException e) {

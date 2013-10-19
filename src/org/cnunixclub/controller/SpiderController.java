@@ -145,8 +145,8 @@ public class SpiderController implements IDownloaderEvent {
     public void downloadTask(String type, String[] subUrls) throws Exception {
         if (this.currentResolveAdapter != null && this.currentResolveAdapter.currentSiteUrl != null && ConsoleSpider.currentSpiderTaskContent != null) {
             ConsoleSpider.currentSpiderTaskContent.taskType = type;
-            ConsoleSpider.currentSpiderTaskContent.urlList = subUrls;            
-            
+            ConsoleSpider.currentSpiderTaskContent.urlList = subUrls;
+
             String[] destUrls = new String[subUrls.length];
             int fileIndex = 0;
             for (String s : subUrls) {
@@ -342,10 +342,6 @@ public class SpiderController implements IDownloaderEvent {
             int mid = 0;
             try {
                 mid = MovieDBHelper.getMovieId(videoInfo.name);
-
-
-
-
             } catch (SQLException ex) {
                 Logger.getLogger(SpiderController.class
                         .getName()).log(Level.SEVERE, null, ex);
@@ -358,10 +354,6 @@ public class SpiderController implements IDownloaderEvent {
                     mid = MovieDBHelper.getMovieId(videoInfo.name);
                     for (String s : qvods) {
                         MovieDBHelper.addMovieUrl(mid, "qvod", s);
-
-
-
-
                     }
                 } catch (Exception ex) {
                     Logger.getLogger(SpiderController.class
@@ -369,6 +361,25 @@ public class SpiderController implements IDownloaderEvent {
                 }
             } else {
                 printLogText("该影片已存在！片名：" + videoInfo.name);
+                int qvodurlcount = MovieDBHelper.getMovieurlCount(mid, "qvod");
+                printLogText("该影片已有Qvod影片链接数:" + qvodurlcount);
+                if (qvods.length > qvodurlcount) {
+                    printLogText("该影片有更新！");
+                    try {
+                        int resultss = MovieDBHelper.removeMovieUrl(mid, "qvod");
+                        if (resultss > 0) {
+                            for (String s : qvods) {
+                                MovieDBHelper.addMovieUrl(mid, "qvod", s);
+                            }
+                            
+                             qvodurlcount = MovieDBHelper.getMovieurlCount(mid, "qvod");
+                             printLogText("更新影片链接完成!当前记录数：" + qvodurlcount);
+                        }
+                    } catch (SQLException ex) {
+                        Logger.getLogger(SpiderController.class.getName()).log(Level.SEVERE, null, ex);
+                        printLogText("更新影片链接出错!");
+                    }
+                }
             }
         }
     }
@@ -389,20 +400,21 @@ public class SpiderController implements IDownloaderEvent {
     public String getWorkeStatus() {
         String result = "";
         if (this.currentVideoChannel != null) {
-            result += "当前正在下载的频道：" + this.currentVideoChannel.name + "\n";
+            result += "正在下载的频道：" + this.currentVideoChannel.name + "\n";
         }
         if (this.queueChannelList != null) {
-            result += "当前剩余频道数：" + this.queueChannelList.size() + "\n";
+            result += "剩余频道数：" + this.queueChannelList.size() + "\n";
         }
 
         if (this.currentVideoInfo != null) {
-            result += "当前正在下载的影片：" + this.currentVideoInfo.name + "\n";
+            result += "正在下载的影片：" + this.currentVideoInfo.name + "\n";
         }
 
         result += "已搜索到的影片数：" + this.queueContentList.size() + "\n";
         result += "已下载的影片内容页数量：" + this.queueContentBufferList.size() + "\n";
         result += "已下载影片数：" + downloadedMovieCount + "\n";
         result += "下一个要分析的分页：" + this.nextChannelPagingUrl + "\n";
+        result += "最大搜索页数：" + this.maxPageCount + "\n";
         return result;
     }
 

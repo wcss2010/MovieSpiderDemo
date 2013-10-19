@@ -17,7 +17,7 @@ import org.cnunixclub.spider.helper.HTMLDownloader;
  *
  * @author wcss
  */
-public class MyHandler implements HttpHandler {
+public class HTTPResolve implements HttpHandler {
 
     /**
      * 生成反馈信息结构
@@ -93,14 +93,22 @@ public class MyHandler implements HttpHandler {
                 try {
                     ConsoleSpider.maxPageCountFinal = Integer.parseInt(cmds.replace("setmaxpagecount-", "").trim());
                     result = "当前最大扫描页数为" + ConsoleSpider.maxPageCountFinal;
+                    if (ConsoleSpider.spiderController != null)
+                    {
+                        ConsoleSpider.spiderController.maxPageCount = ConsoleSpider.maxPageCountFinal;
+                    }
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
+            } else if (cmds.startsWith("pause")) {
+                DownloaderManager.manager.stopAllDownloader();
+                result = "任务已暂停";
             } else if (cmds.startsWith("help")) {
                 result += "服务器地址/test?restart-2 (表示重新开始并跳过前2个频道！)\n";
                 result += "服务器地址/test?setmaxpagecount-500 (设置每个分类最大扫描页数为500！)\n";
                 result += "服务器地址/test?quit (退出程序)\n";
                 result += "服务器地址/test?stop (停止当前任务并清理缓冲区)\n";
+                result += "服务器地址/test?pause （暂停当前任务）";
                 result += "服务器地址/test?continue (重新执行因为超时而失败的任务！)\n";
                 result += "服务器地址/test?help (打印帮助)\n";
             }
