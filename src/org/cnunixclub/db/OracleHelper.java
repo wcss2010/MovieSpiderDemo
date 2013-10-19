@@ -20,29 +20,24 @@ import java.util.logging.Logger;
  *
  * @author wcss
  */
-public class MySqlHelper 
+public class OracleHelper 
 {
-    public static String mysqlUrl = "";
-    public static String user = "";
-    public static String pwd = "";
+    public static String oracleUrl = "";
+    public static String users = "";
+    public static String pwds = "";
 
     /**
      * 设置连接字符串
      */
     public static void setConnections(String type,String hostAndPort,String dbName, String dbUser, String dbPass) {
         try {
-            Class.forName("com.mysql.jdbc.Driver");
+            Class.forName("oracle.jdbc.driver.OracleDriver");
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(DBHelper.class.getName()).log(Level.SEVERE, null, ex);
         }
-        try {
-            Class.forName("org.gjt.mm.mysql.Driver");
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(DBHelper.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        mysqlUrl = "jdbc:mysql://localhost:3306/" + dbName + "?useUnicode=true&characterEncoding=UTF-8";
-        user = dbUser;
-        pwd = dbPass;
+        oracleUrl = "jdbc:oracle:thin:@" + hostAndPort + ":" + dbName;
+        users = dbUser;
+        pwds = dbPass;
     }
 
     /**
@@ -52,7 +47,7 @@ public class MySqlHelper
      */
     public static Connection getConnections() {
         try {
-            return DriverManager.getConnection(mysqlUrl, user, pwd);
+            return DriverManager.getConnection(oracleUrl, users, pwds);
         } catch (SQLException ex) {
             return null;
         } catch (Exception ex) {

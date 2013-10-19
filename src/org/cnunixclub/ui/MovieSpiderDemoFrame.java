@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.cnunixclub.controller.SpiderController;
-import org.cnunixclub.db.MySqlHelper;
+import org.cnunixclub.db.DBHelper;
 import org.cnunixclub.helper.MovieContentHelper;
 import org.cnunixclub.helper.MoviePlayUrlHelper;
 import org.cnunixclub.plugin.CncvodResolve;
@@ -35,7 +35,7 @@ public class MovieSpiderDemoFrame extends javax.swing.JFrame implements IDownloa
         sc.maxPageCount = max;
         sc.resolveStatusEvent = this;
 
-        MySqlHelper.setConnection(dbName, user, pass);
+        //DBHelper.setConnection(dbName, user, pass);
     }
 
     /**

@@ -5,6 +5,7 @@
 package org.cnunixclub.db;
 
 import java.sql.SQLException;
+import org.cnunixclub.ui.ConsoleSpider;
 
 /**
  *
@@ -19,15 +20,14 @@ public class MovieDBHelper {
      * @return
      * @throws SQLException
      */
-    public static Boolean existsClassName(String name) throws SQLException {
-        Object obj = MySqlHelper.ExecuteScalar("select count(*) from DataDictionary where ParentNode = 2 and DicKey = '" + name + "'", null);
-        if (obj != null) {
-            if (Integer.parseInt(obj.toString()) > 0) {
-                return true;
+    public static Boolean existsClassName(String names) {
+        try {
+            if (ConsoleSpider.dbType == null || (ConsoleSpider.dbType != null && ConsoleSpider.dbType.isEmpty()) || (ConsoleSpider.dbType != null && ConsoleSpider.dbType.equals("mysql"))) {
+                return MovieDBWithMySqlHelper.existsClassName(names);
             } else {
-                return false;
+                return MovieDBWithOracleHelper.existsClassName(names);
             }
-        } else {
+        } catch (Exception ex) {
             return false;
         }
     }
@@ -39,11 +39,14 @@ public class MovieDBHelper {
      * @return
      * @throws SQLException
      */
-    public static int getClassId(String name) throws SQLException {
-        Object obj = MySqlHelper.ExecuteScalar("select DID from DataDictionary where ParentNode = 2 and DicKey = '" + name + "'", null);
-        if (obj != null) {
-            return Integer.parseInt(obj.toString());
-        } else {
+    public static int getClassId(String name1) {
+        try {
+            if (ConsoleSpider.dbType == null || (ConsoleSpider.dbType != null && ConsoleSpider.dbType.isEmpty()) || (ConsoleSpider.dbType != null && ConsoleSpider.dbType.equals("mysql"))) {
+                return MovieDBWithMySqlHelper.getClassId(name1);
+            } else {
+                return MovieDBWithOracleHelper.getClassId(name1);
+            }
+        } catch (Exception ex) {
             return 0;
         }
     }
@@ -55,11 +58,14 @@ public class MovieDBHelper {
      * @return
      * @throws SQLException
      */
-    public static int getMovieId(String name) throws SQLException {
-        Object obj = MySqlHelper.ExecuteScalar("select MID from Movies where MovieName = '" + name + "'", null);
-        if (obj != null) {
-            return Integer.parseInt(obj.toString());
-        } else {
+    public static int getMovieId(String name) {
+        try {
+            if (ConsoleSpider.dbType == null || (ConsoleSpider.dbType != null && ConsoleSpider.dbType.isEmpty()) || (ConsoleSpider.dbType != null && ConsoleSpider.dbType.equals("mysql"))) {
+                return MovieDBWithMySqlHelper.getMovieId(name);
+            } else {
+                return MovieDBWithOracleHelper.getMovieId(name);
+            }
+        } catch (Exception ex) {
             return 0;
         }
     }
@@ -76,10 +82,11 @@ public class MovieDBHelper {
      * @return
      */
     public static Boolean addMovieInfo(String movieName, String actor, String storyLine, String stagePhoto, int classNameID, String status) throws SQLException {
-        StringBuilder sb = new StringBuilder();
-        sb.append("insert into Movies(MovieName,actor,StoryLine,StagePhoto,ClassNameID,Status) values ('" + movieName + "','" + actor + "','" + storyLine + "','" + stagePhoto + "'," + classNameID + ",'" + status + "')");
-        int count = MySqlHelper.ExecuteNoneQuery(sb.toString(), null);
-        return count > 0 ? true : false;
+        if (ConsoleSpider.dbType == null || (ConsoleSpider.dbType != null && ConsoleSpider.dbType.isEmpty()) || (ConsoleSpider.dbType != null && ConsoleSpider.dbType.equals("mysql"))) {
+            return MovieDBWithMySqlHelper.addMovieInfo(movieName, actor, storyLine, stagePhoto, classNameID, status);
+        } else {
+            return MovieDBWithOracleHelper.addMovieInfo(movieName, actor, storyLine, stagePhoto, classNameID, status);
+        }
     }
 
     /**
@@ -92,10 +99,11 @@ public class MovieDBHelper {
      * @throws SQLException
      */
     public static Boolean addMovieUrl(int mid, String addrType, String url) throws SQLException {
-        StringBuilder sb = new StringBuilder();
-        sb.append("insert into MovieUrl(MID,AddrType,Url) values (" + mid + ",'" + addrType + "','" + url + "')");
-        int count = MySqlHelper.ExecuteNoneQuery(sb.toString(), null);
-        return count > 0 ? true : false;
+        if (ConsoleSpider.dbType == null || (ConsoleSpider.dbType != null && ConsoleSpider.dbType.isEmpty()) || (ConsoleSpider.dbType != null && ConsoleSpider.dbType.equals("mysql"))) {
+            return MovieDBWithMySqlHelper.addMovieUrl(mid, addrType, url);
+        } else {
+            return MovieDBWithOracleHelper.addMovieUrl(mid, addrType, url);
+        }
     }
 
     /**
@@ -107,22 +115,25 @@ public class MovieDBHelper {
      * @throws SQLException
      */
     public static int removeMovieUrl(int mid, String addrType) throws SQLException {
-        int result = MySqlHelper.ExecuteNoneQuery("delete from MovieUrl where MID = " + mid + " and AddrType = '" + addrType + "'", null);
-        return result;
+        if (ConsoleSpider.dbType == null || (ConsoleSpider.dbType != null && ConsoleSpider.dbType.isEmpty()) || (ConsoleSpider.dbType != null && ConsoleSpider.dbType.equals("mysql"))) {
+            return MovieDBWithMySqlHelper.removeMovieUrl(mid, addrType);
+        } else {
+            return MovieDBWithOracleHelper.removeMovieUrl(mid, addrType);
+        }
     }
 
     /**
      * 查询链接数量
+     *
      * @param mid
      * @param addrType
-     * @return 
+     * @return
      */
     public static int getMovieurlCount(int mid, String addrType) {
-        try {
-            Object result = MySqlHelper.ExecuteScalar("select count(*) from MovieUrl where MID = " + mid + " and AddrType = '" + addrType + "'", null);
-            return Integer.parseInt(result + "");
-        } catch (Exception ex) {
-            return 0;
+        if (ConsoleSpider.dbType == null || (ConsoleSpider.dbType != null && ConsoleSpider.dbType.isEmpty()) || (ConsoleSpider.dbType != null && ConsoleSpider.dbType.equals("mysql"))) {
+            return MovieDBWithMySqlHelper.getMovieurlCount(mid, addrType);
+        } else {
+            return MovieDBWithOracleHelper.getMovieurlCount(mid, addrType);
         }
     }
 }

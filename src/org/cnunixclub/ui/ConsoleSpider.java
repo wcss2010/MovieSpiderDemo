@@ -12,7 +12,7 @@ import java.net.InetSocketAddress;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.cnunixclub.controller.SpiderController;
-import org.cnunixclub.db.MySqlHelper;
+import org.cnunixclub.db.DBHelper;
 import org.cnunixclub.plugin.CncvodResolve;
 import org.cnunixclub.spider.Interface.IVideoSiteResolveAdapter;
 import org.cnunixclub.spider.Interface.IVideoSiteResolveStatus;
@@ -30,6 +30,8 @@ public class ConsoleSpider implements Runnable, IVideoSiteResolveStatus {
     public static Boolean isRunSpider = true;
     public static HttpServer hs = null;
     public static ConsoleSpider localObj = new ConsoleSpider();
+    public static String dbType = "";
+    public static String dbHostAndPort = "";
     public static String dbNameFinal = "";
     public static String dbUserFinal = "";
     public static String dbPwdFinal = "";
@@ -44,18 +46,20 @@ public class ConsoleSpider implements Runnable, IVideoSiteResolveStatus {
      * @param args
      */
     public static void main(String[] args) {
-        if (args.length >= 4) {
+        if (args.length >= 6) {
             try 
             {
                 maxPageCountFinal = Integer.parseInt(args[0]);
-                dbNameFinal = args[1];
-                dbUserFinal = args[2];
-                dbPwdFinal =  args[3];
+                dbType = args[1];
+                dbHostAndPort = args[2];
+                dbNameFinal = args[3];
+                dbUserFinal = args[4];
+                dbPwdFinal =  args[5];
                 
-                System.out.println("最大页号：" + maxPageCountFinal + ",数据库名：" + dbNameFinal + ",用户名：" + dbUserFinal + ",密码：" + dbPwdFinal);
+                System.out.println("最大页号：" + maxPageCountFinal + ",数据库类型：" + dbType + ",地址及端口："+ dbHostAndPort +",数据库名：" + dbNameFinal + ",用户名：" + dbUserFinal + ",密码：" + dbPwdFinal);
 
                 //设置Mysql参数
-                MySqlHelper.setConnection(dbNameFinal, dbUserFinal, dbPwdFinal);
+                DBHelper.setConnection(dbType,dbHostAndPort,dbNameFinal, dbUserFinal, dbPwdFinal);
 
                 tt = new Thread(localObj);
                 tt.start();
