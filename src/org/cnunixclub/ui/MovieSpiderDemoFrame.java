@@ -68,7 +68,7 @@ public class MovieSpiderDemoFrame extends javax.swing.JFrame implements IDownloa
         jLabel2.setFont(new java.awt.Font("文泉驿微米黑", 1, 12)); // NOI18N
         jLabel2.setText("剧情播放页：");
 
-        txtPlayUrl.setText("http://www.cncvod.com/play/?64063-0-0.html");
+        txtPlayUrl.setText("http://www.cncvod.com/play/?7606-0-0.html");
 
         btnGetContent.setText("分析内容页");
         btnGetContent.addActionListener(new java.awt.event.ActionListener() {
@@ -78,7 +78,6 @@ public class MovieSpiderDemoFrame extends javax.swing.JFrame implements IDownloa
         });
 
         btnGetPlay.setText("分析播放页");
-        btnGetPlay.setEnabled(false);
         btnGetPlay.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnGetPlayActionPerformed(evt);
@@ -152,7 +151,7 @@ public class MovieSpiderDemoFrame extends javax.swing.JFrame implements IDownloa
         try {
             // TODO add your handling code here:
             this.lblStatus.setText("正在下载页面，请稍后......");
-            //HTMLDownloader.downloadFile("qvodfinder", this.txtPlayUrl.getText(), this);
+            HTMLDownloader.downloadFile("qvodfinder", new String[]{this.txtPlayUrl.getText()}, this);
             this.txtResult.setText("");
         } catch (Exception ex) {
             Logger.getLogger(MovieSpiderDemoFrame.class.getName()).log(Level.SEVERE, null, ex);
@@ -191,7 +190,7 @@ public class MovieSpiderDemoFrame extends javax.swing.JFrame implements IDownloa
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        if (args == null || (args != null && args.length >= 4)) {
+        if (args == null) {
         } else {
             /* Set the Nimbus look and feel */
             //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -327,7 +326,47 @@ public class MovieSpiderDemoFrame extends javax.swing.JFrame implements IDownloa
 
     @Override
     public void onReportStatus(IDownloaderPlugin idp, int i, String string) {
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        this.lblStatus.setText("页面下载完成，正在分析......");
+        try {
+            String content = HTMLDownloader.readAllTextFromFileWithGBK(idp.getBufferFileUrl(0));
+//            ArrayList<String> team = MovieContentHelper.getMovieChannelPageUrlList(content);
+//            for(String s : team)
+//            {
+//               printLogText(s);
+//            }
+//            ArrayList<String> hotVideos = new ArrayList<String>();
+//            hotVideos.add("大上海");
+//            hotVideos.add("一路向西");
+//            printLogText(MovieContentHelper.getMoviePlayActor(content,hotVideos));
+            if (idp.downloaderID.startsWith("qvodfinder")) {
+                ArrayList<String> team = MoviePlayUrlHelper.getQvodUrlList(content);
+                for (String s : team) {
+                    printLogText(s);
+                }
+
+                printLogText("页面分析完成，共找到" + team.size() + "个快播地址");
+            }
+//            else if (avd.downloaderID.startsWith("contentresolve")) {
+//                ArrayList<String> hotVideos = new ArrayList<String>();
+//                hotVideos.add("大上海");
+//                hotVideos.add("一路向西");
+//                String showStr = "";
+//                printLogText("片名：" + MovieContentHelper.getMovieName(content));
+//                printLogText("演员：" + MovieContentHelper.getMoviePlayActor(content, hotVideos));
+//                printLogText("图片：" + MovieContentHelper.getMovieImageUrl(content));
+//                printLogText("介绍：" + MovieContentHelper.getMovieDetailText(content));
+//                printLogText("Qvod地址：");
+//                ArrayList<String> team = MovieContentHelper.getPlayPageUrlList(content);
+//                if (team.size() > 0) {
+//                    String currentPlayPage = "http://www.cncvod.com/" + team.get(0);
+//                    HTMLDownloader.downloadFile("qvodfinder", currentPlayPage, this);
+//                }
+//
+//                //this.lblStatus.setText("页面分析完成，共找到" + team.size() + "个记录");
+//            }
+        } catch (Exception ex) {
+            Logger.getLogger(MovieSpiderDemoFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
