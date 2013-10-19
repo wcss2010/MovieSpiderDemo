@@ -345,7 +345,7 @@ public class SpiderController implements IDownloaderEvent {
             int mid = 0;
             try {
                 mid = MovieDBHelper.getMovieId(videoInfo.name);
-            } catch (SQLException ex) {
+            } catch (Exception ex) {
                 Logger.getLogger(SpiderController.class
                         .getName()).log(Level.SEVERE, null, ex);
             }
