@@ -83,7 +83,7 @@ public class MySqlHelper
             return pstmt.executeUpdate();
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
-            throw new Exception("\nmsg:" + ex.getMessage() + "\n localmsg:" + ex.getLocalizedMessage() + "\n error:" + ex.toString());
+            throw new Exception("\n error:" + ex.toString());
         } finally {
             if (pstmt != null) {
                 pstmt.clearParameters();
