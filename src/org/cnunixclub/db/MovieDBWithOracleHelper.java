@@ -4,7 +4,11 @@
  */
 package org.cnunixclub.db;
 
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import static org.cnunixclub.db.OracleHelper.getConnections;
 
 /**
  *
@@ -75,7 +79,7 @@ public class MovieDBWithOracleHelper
      * @param status
      * @return
      */
-    public static Boolean addMovieInfo(String movieName, String actor, String storyLine, String stagePhoto, int classNameID, String status) throws Exception {
+    private static Boolean addMovieInfo_old(String movieName, String actor, String storyLine, String stagePhoto, int classNameID, String status) throws Exception {
         StringBuilder sb = new StringBuilder();
         sb.append("insert into Movies(MID,MovieName,actor,StoryLine,StagePhoto,ClassNameID,Status) values (seq_movies.nextval,'" + movieName + "','" + actor + "','" + storyLine + "','" + stagePhoto + "'," + classNameID + ",'" + status + "')");
         int count = DBHelper.ExecuteNoneQuery(sb.toString(), null);
@@ -124,5 +128,47 @@ public class MovieDBWithOracleHelper
         } catch (Exception ex) {
             return 0;
         }
+    }
+    
+    /**
+     * 数据影片信息函数(使用存储过程)
+     *
+     * @param SQL语句
+     * @param 语句带的参数
+     * @return 操作影响行数
+     * @throws SQLException
+     *
+     * @example Object[] parms = new Object[2];<br/> parms[0] = "标题"; <br/>
+     * parms[1] = "内容";<br/> int val = mysqlhelper.ExecuteNoneQuery( "insert
+     * into Documents(Title,Content) values (?,?)", parms);
+     */
+    public static Boolean addMovieInfo(String movieName, String actor, String storyLine, String stagePhoto, int classNameID, String status) throws Exception
+    {
+        CallableStatement pstmt = null;
+        Connection conn = null;
+        try {
+            conn = DBHelper.getConnection();
+            pstmt = conn.prepareCall("{call MOVIE_PACKAGE.PROC_ADD_MOVIE(?,?,?,?,?,?,?)}"); 
+            pstmt.setString(1, movieName);
+            pstmt.setString(2, actor);
+            pstmt.setString(3, storyLine);
+            pstmt.setString(4, stagePhoto);
+            pstmt.setInt(5, classNameID);
+            pstmt.setString(6, status);
+            pstmt.registerOutParameter(7, java.sql.Types.INTEGER); 
+            return pstmt.execute();
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+            throw new Exception("\n error:" + ex.toString());
+        } finally {
+            if (pstmt != null) {
+                pstmt.clearParameters();
+                pstmt.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+
+        }        
     }
 }
