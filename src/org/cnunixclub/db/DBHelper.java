@@ -65,7 +65,7 @@ public abstract class DBHelper {
      * into Documents(Title,Content) values (?,?)", parms);
      */
     public static int ExecuteNoneQuery(String cmdtext, Object[] parms)
-            throws SQLException {
+            throws Exception {
        if (ConsoleSpider.dbType == null || (ConsoleSpider.dbType != null && ConsoleSpider.dbType.isEmpty()) ||(ConsoleSpider.dbType != null && ConsoleSpider.dbType.equals("mysql")))
        {
            return MySqlHelper.ExecuteNoneQuerys(cmdtext, parms);
@@ -83,7 +83,7 @@ public abstract class DBHelper {
      * @return 值
      * @throws SQLException
      */
-    public static Object ExecuteScalar(String cmdtext, Object[] parms) throws SQLException{
+    public static Object ExecuteScalar(String cmdtext, Object[] parms) throws Exception{
        if (ConsoleSpider.dbType == null || (ConsoleSpider.dbType != null && ConsoleSpider.dbType.isEmpty()) ||(ConsoleSpider.dbType != null && ConsoleSpider.dbType.equals("mysql")))
        {
            return MySqlHelper.ExecuteScalars(cmdtext, parms);

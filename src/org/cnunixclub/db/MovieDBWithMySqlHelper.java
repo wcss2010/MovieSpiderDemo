@@ -19,7 +19,7 @@ public class MovieDBWithMySqlHelper
      * @return
      * @throws SQLException
      */
-    public static Boolean existsClassName(String name) throws SQLException {
+    public static Boolean existsClassName(String name) throws Exception {
         Object obj = DBHelper.ExecuteScalar("select count(*) from DataDictionary where ParentNode = 2 and DicKey = '" + name + "'", null);
         if (obj != null) {
             if (Integer.parseInt(obj.toString()) > 0) {
@@ -39,7 +39,7 @@ public class MovieDBWithMySqlHelper
      * @return
      * @throws SQLException
      */
-    public static int getClassId(String name) throws SQLException {
+    public static int getClassId(String name) throws Exception {
         Object obj = DBHelper.ExecuteScalar("select DID from DataDictionary where ParentNode = 2 and DicKey = '" + name + "'", null);
         if (obj != null) {
             return Integer.parseInt(obj.toString());
@@ -55,7 +55,7 @@ public class MovieDBWithMySqlHelper
      * @return
      * @throws SQLException
      */
-    public static int getMovieId(String name) throws SQLException {
+    public static int getMovieId(String name) throws Exception {
         Object obj = DBHelper.ExecuteScalar("select MID from Movies where MovieName = '" + name + "'", null);
         if (obj != null) {
             return Integer.parseInt(obj.toString());
@@ -75,7 +75,7 @@ public class MovieDBWithMySqlHelper
      * @param status
      * @return
      */
-    public static Boolean addMovieInfo(String movieName, String actor, String storyLine, String stagePhoto, int classNameID, String status) throws SQLException {
+    public static Boolean addMovieInfo(String movieName, String actor, String storyLine, String stagePhoto, int classNameID, String status) throws Exception {
         StringBuilder sb = new StringBuilder();
         sb.append("insert into Movies(MovieName,actor,StoryLine,StagePhoto,ClassNameID,Status) values ('" + movieName + "','" + actor + "','" + storyLine + "','" + stagePhoto + "'," + classNameID + ",'" + status + "')");
         int count = DBHelper.ExecuteNoneQuery(sb.toString(), null);
@@ -91,7 +91,7 @@ public class MovieDBWithMySqlHelper
      * @return
      * @throws SQLException
      */
-    public static Boolean addMovieUrl(int mid, String addrType, String url) throws SQLException {
+    public static Boolean addMovieUrl(int mid, String addrType, String url) throws Exception {
         StringBuilder sb = new StringBuilder();
         sb.append("insert into MovieUrl(MID,AddrType,Url) values (" + mid + ",'" + addrType + "','" + url + "')");
         int count = DBHelper.ExecuteNoneQuery(sb.toString(), null);
@@ -106,7 +106,7 @@ public class MovieDBWithMySqlHelper
      * @return
      * @throws SQLException
      */
-    public static int removeMovieUrl(int mid, String addrType) throws SQLException {
+    public static int removeMovieUrl(int mid, String addrType) throws Exception {
         int result = DBHelper.ExecuteNoneQuery("delete from MovieUrl where MID = " + mid + " and AddrType = '" + addrType + "'", null);
         return result;
     }

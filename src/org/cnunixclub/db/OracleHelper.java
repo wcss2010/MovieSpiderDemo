@@ -15,6 +15,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import static org.cnunixclub.db.MySqlHelper.getConnections;
 
 /**
  *
@@ -68,7 +69,7 @@ public class OracleHelper
      * into Documents(Title,Content) values (?,?)", parms);
      */
     public static int ExecuteNoneQuerys(String cmdtext, Object[] parms)
-            throws SQLException {
+            throws Exception {
         PreparedStatement pstmt = null;
         Connection conn = null;
         try {
@@ -78,6 +79,7 @@ public class OracleHelper
             return pstmt.executeUpdate();
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
+            throw new Exception("\nmsg:" + ex.getMessage() + "\n localmsg:" + ex.getLocalizedMessage() + "\n error:" + ex.toString());
         } finally {
             if (pstmt != null) {
                 pstmt.clearParameters();
@@ -87,8 +89,7 @@ public class OracleHelper
                 conn.close();
             }
 
-        }
-        return 0;
+        }        
     }
 
     /**

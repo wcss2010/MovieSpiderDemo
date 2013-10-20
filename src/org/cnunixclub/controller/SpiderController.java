@@ -382,7 +382,7 @@ public class SpiderController implements IDownloaderEvent {
                             qvodurlcount = MovieDBHelper.getMovieurlCount(mid, "qvod");
                             printLogText("更新影片链接完成!当前记录数：" + qvodurlcount);
                         }
-                    } catch (SQLException ex) {
+                    } catch (Exception ex) {
                         saveErrorCount++;
                         printLogText("更新影片链接出错!");
                         saveErrorStr = ex.toString();
@@ -407,6 +407,7 @@ public class SpiderController implements IDownloaderEvent {
      */
     public String getWorkeStatus() {
         String result = "";
+        result +=  "当前最大页号：" + ConsoleSpider.maxPageCountFinal + ",数据库类型：" + ConsoleSpider.dbType + ",地址及端口："+ ConsoleSpider.dbHostAndPort +",数据库名：" + ConsoleSpider.dbNameFinal + ",用户名：" + ConsoleSpider.dbUserFinal + "\n\n";
         if (this.currentVideoChannel != null) {
             result += "正在下载的频道：" + this.currentVideoChannel.name + "\n";
         }
@@ -424,7 +425,7 @@ public class SpiderController implements IDownloaderEvent {
         result += "下一个要分析的分页：" + this.nextChannelPagingUrl + "\n";
         result += "最大搜索页数：" + this.maxPageCount + "\n";
         result += "影片数据保存出错次数：" + this.saveErrorCount + "\n";
-        result += "最近一次的保存出错内容：" + this.saveErrorStr + "\n";
+        result += "最近一次的保存出错内容：\n" + this.saveErrorStr + "\n";
         return result;
     }
 

@@ -81,7 +81,7 @@ public class MovieDBHelper {
      * @param status
      * @return
      */
-    public static Boolean addMovieInfo(String movieName, String actor, String storyLine, String stagePhoto, int classNameID, String status) throws SQLException {
+    public static Boolean addMovieInfo(String movieName, String actor, String storyLine, String stagePhoto, int classNameID, String status) throws Exception {
         if (ConsoleSpider.dbType == null || (ConsoleSpider.dbType != null && ConsoleSpider.dbType.isEmpty()) || (ConsoleSpider.dbType != null && ConsoleSpider.dbType.equals("mysql"))) {
             return MovieDBWithMySqlHelper.addMovieInfo(movieName, actor, storyLine, stagePhoto, classNameID, status);
         } else {
@@ -98,7 +98,7 @@ public class MovieDBHelper {
      * @return
      * @throws SQLException
      */
-    public static Boolean addMovieUrl(int mid, String addrType, String url) throws SQLException {
+    public static Boolean addMovieUrl(int mid, String addrType, String url) throws Exception {
         if (ConsoleSpider.dbType == null || (ConsoleSpider.dbType != null && ConsoleSpider.dbType.isEmpty()) || (ConsoleSpider.dbType != null && ConsoleSpider.dbType.equals("mysql"))) {
             return MovieDBWithMySqlHelper.addMovieUrl(mid, addrType, url);
         } else {
@@ -114,7 +114,7 @@ public class MovieDBHelper {
      * @return
      * @throws SQLException
      */
-    public static int removeMovieUrl(int mid, String addrType) throws SQLException {
+    public static int removeMovieUrl(int mid, String addrType) throws Exception {
         if (ConsoleSpider.dbType == null || (ConsoleSpider.dbType != null && ConsoleSpider.dbType.isEmpty()) || (ConsoleSpider.dbType != null && ConsoleSpider.dbType.equals("mysql"))) {
             return MovieDBWithMySqlHelper.removeMovieUrl(mid, addrType);
         } else {
