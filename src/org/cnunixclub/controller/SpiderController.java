@@ -82,7 +82,7 @@ public class SpiderController implements IDownloaderEvent {
     public String nextChannelPagingUrl = "";
     public int jumpChannelCount = 0;
     public int saveErrorCount = 0;
-    public String saveErrorStr = "";
+    public String saveErrorStrs = "";
 
     /**
      * 投递解析状态事件
@@ -364,7 +364,7 @@ public class SpiderController implements IDownloaderEvent {
                 } catch (Exception ex) {
                     saveErrorCount++;
                     printLogText("保存影片链接出错!");
-                    saveErrorStr = ex.toString();
+                    saveErrorStrs = "片名：" + this.currentVideoInfo.name + "\n错误信息：" + ex.toString();
                 }
             } else {
                 printLogText("该影片已存在！片名：" + videoInfo.name);
@@ -385,7 +385,7 @@ public class SpiderController implements IDownloaderEvent {
                     } catch (Exception ex) {
                         saveErrorCount++;
                         printLogText("更新影片链接出错!");
-                        saveErrorStr = ex.toString();
+                        saveErrorStrs = "片名：" + this.currentVideoInfo.name + "\n错误信息：" + ex.toString();
                     }
                 }
             }
@@ -425,7 +425,7 @@ public class SpiderController implements IDownloaderEvent {
         result += "下一个要分析的分页：" + this.nextChannelPagingUrl + "\n";
         result += "最大搜索页数：" + this.maxPageCount + "\n";
         result += "影片数据保存出错次数：" + this.saveErrorCount + "\n";
-        result += "最近一次的保存出错内容：\n" + this.saveErrorStr + "\n";
+        result += "最近一次的保存出错内容：\n" + this.saveErrorStrs + "\n";
         return result;
     }
 
