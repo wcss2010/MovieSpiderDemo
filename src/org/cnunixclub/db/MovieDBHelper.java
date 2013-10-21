@@ -82,10 +82,16 @@ public class MovieDBHelper {
      * @return
      */
     public static Boolean addMovieInfo(String movieName, String actor, String storyLine, String stagePhoto, int classNameID, String status) throws Exception {
-        if (ConsoleSpider.dbType == null || (ConsoleSpider.dbType != null && ConsoleSpider.dbType.isEmpty()) || (ConsoleSpider.dbType != null && ConsoleSpider.dbType.equals("mysql"))) {
-            return MovieDBWithMySqlHelper.addMovieInfo(movieName, actor, storyLine, stagePhoto, classNameID, status);
-        } else {
-            return MovieDBWithOracleHelper.addMovieInfo(movieName, actor, storyLine, stagePhoto, classNameID, status);
+        try {
+            if (ConsoleSpider.dbType == null || (ConsoleSpider.dbType != null && ConsoleSpider.dbType.isEmpty()) || (ConsoleSpider.dbType != null && ConsoleSpider.dbType.equals("mysql"))) {
+                return MovieDBWithMySqlHelper.addMovieInfo(movieName, actor, storyLine, stagePhoto, classNameID, status);
+            } else {
+                return MovieDBWithOracleHelper.addMovieInfo(movieName, actor, storyLine, stagePhoto, classNameID, status);
+            }
+        } catch (Exception ex) {
+            String content = "\nmovieName:" + movieName + "\n actor:" + actor + "\n storyLine:" + storyLine + "\n stagePhoto:" + stagePhoto + "\n classNameID:" + classNameID;
+            System.out.println(content + "\n error:" + ex.toString());
+            throw new Exception(content + "\n error:" + ex.toString());
         }
     }
 
@@ -99,10 +105,16 @@ public class MovieDBHelper {
      * @throws SQLException
      */
     public static Boolean addMovieUrl(int mid, String addrType, String url) throws Exception {
-        if (ConsoleSpider.dbType == null || (ConsoleSpider.dbType != null && ConsoleSpider.dbType.isEmpty()) || (ConsoleSpider.dbType != null && ConsoleSpider.dbType.equals("mysql"))) {
-            return MovieDBWithMySqlHelper.addMovieUrl(mid, addrType, url);
-        } else {
-            return MovieDBWithOracleHelper.addMovieUrl(mid, addrType, url);
+        try {
+            if (ConsoleSpider.dbType == null || (ConsoleSpider.dbType != null && ConsoleSpider.dbType.isEmpty()) || (ConsoleSpider.dbType != null && ConsoleSpider.dbType.equals("mysql"))) {
+                return MovieDBWithMySqlHelper.addMovieUrl(mid, addrType, url);
+            } else {
+                return MovieDBWithOracleHelper.addMovieUrl(mid, addrType, url);
+            }
+        } catch (Exception ex) {
+            String content = "\nmid:" + mid + "\n addrType:" + addrType + "\n url:" + url;
+            System.out.println(content + "\n error:" + ex.toString());
+            throw new Exception(content + "\n error:" + ex.toString());
         }
     }
 

@@ -31,23 +31,26 @@ public class MoviePlayUrlHelper {
                 for (String t : cnts) {
                     filteredUrl.add(t);
                 }
-            }else
-            {
+            } else {
                 filteredUrl.add(s);
             }
         }
 
         for (String v : filteredUrl) {
-            if (v.length() > 40) {
-                int index = v.indexOf("qvod://");
+            try {
+                if (v.length() > 40) {
+                    int index = v.indexOf("qvod://");
 
-                v = v.replace("|$qvod", "|").replace("]]", "").replace("',[", "");
-                if (index == 0) {
-                    result.add(v);
-                } else {
-                    v = v.substring(index);
-                    result.add(v);
+                    v = v.replace("|$qvod", "|").replace("]]", "").replace("',[", "");
+                    if (index == 0) {
+                        result.add(v);
+                    } else {
+                        v = v.substring(index);
+                        result.add(v);
+                    }
                 }
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
         }
         return result;

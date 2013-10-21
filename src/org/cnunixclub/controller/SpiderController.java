@@ -407,7 +407,7 @@ public class SpiderController implements IDownloaderEvent {
      */
     public String getWorkeStatus() {
         String result = "";
-        result +=  "当前最大页号：" + ConsoleSpider.maxPageCountFinal + ",数据库类型：" + ConsoleSpider.dbType + ",地址及端口："+ ConsoleSpider.dbHostAndPort +",数据库名：" + ConsoleSpider.dbNameFinal + ",用户名：" + ConsoleSpider.dbUserFinal + "\n\n";
+        //result +=  "当前最大页号：" + ConsoleSpider.maxPageCountFinal + ",数据库类型：" + ConsoleSpider.dbType + ",地址及端口："+ ConsoleSpider.dbHostAndPort +",数据库名：" + ConsoleSpider.dbNameFinal + ",用户名：" + ConsoleSpider.dbUserFinal + "\n\n";
         if (this.currentVideoChannel != null) {
             result += "正在下载的频道：" + this.currentVideoChannel.name + "\n";
         }
