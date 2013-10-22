@@ -14,8 +14,8 @@ import static org.cnunixclub.db.OracleHelper.getConnections;
  *
  * @author wcss
  */
-public class MovieDBWithOracleHelper
-{
+public class MovieDBWithOracleHelper {
+
     /**
      * 是否存在
      *
@@ -95,7 +95,7 @@ public class MovieDBWithOracleHelper
      * @return
      * @throws SQLException
      */
-    public static Boolean addMovieUrl(int mid, String addrType, String url) throws Exception {
+    private static Boolean addMovieUrl_old(int mid, String addrType, String url) throws Exception {
         StringBuilder sb = new StringBuilder();
         sb.append("insert into MovieUrl(PID,MID,AddrType,Url) values (seq_movieurl.nextval," + mid + ",'" + addrType + "','" + url + "')");
         int count = DBHelper.ExecuteNoneQuery(sb.toString(), null);
@@ -117,9 +117,10 @@ public class MovieDBWithOracleHelper
 
     /**
      * 查询链接数量
+     *
      * @param mid
      * @param addrType
-     * @return 
+     * @return
      */
     public static int getMovieurlCount(int mid, String addrType) {
         try {
@@ -129,7 +130,7 @@ public class MovieDBWithOracleHelper
             return 0;
         }
     }
-    
+
     /**
      * 数据影片信息函数(使用存储过程)
      *
@@ -142,20 +143,19 @@ public class MovieDBWithOracleHelper
      * parms[1] = "内容";<br/> int val = mysqlhelper.ExecuteNoneQuery( "insert
      * into Documents(Title,Content) values (?,?)", parms);
      */
-    public static Boolean addMovieInfo(String movieName, String actor, String storyLine, String stagePhoto, int classNameID, String status) throws Exception
-    {
+    public static Boolean addMovieInfo(String movieName, String actor, String storyLine, String stagePhoto, int classNameID, String status) throws Exception {
         CallableStatement pstmt = null;
         Connection conn = null;
         try {
             conn = DBHelper.getConnection();
-            pstmt = conn.prepareCall("{call MOVIE_PACKAGE.PROC_ADD_MOVIE(?,?,?,?,?,?,?)}"); 
+            pstmt = conn.prepareCall("{call MOVIE_PACKAGE.PROC_ADD_MOVIE(?,?,?,?,?,?,?)}");
             pstmt.setString(1, movieName);
             pstmt.setString(2, actor);
             pstmt.setString(3, storyLine);
             pstmt.setString(4, stagePhoto);
             pstmt.setInt(5, classNameID);
             pstmt.setString(6, status);
-            pstmt.registerOutParameter(7, java.sql.Types.INTEGER); 
+            pstmt.registerOutParameter(7, java.sql.Types.INTEGER);
             return pstmt.execute();
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
@@ -169,6 +169,44 @@ public class MovieDBWithOracleHelper
                 conn.close();
             }
 
-        }        
+        }
+    }
+
+    /**
+     * 数据影片连接函数(使用存储过程)
+     *
+     * @param SQL语句
+     * @param 语句带的参数
+     * @return 操作影响行数
+     * @throws SQLException
+     *
+     * @example Object[] parms = new Object[2];<br/> parms[0] = "标题"; <br/>
+     * parms[1] = "内容";<br/> int val = mysqlhelper.ExecuteNoneQuery( "insert
+     * into Documents(Title,Content) values (?,?)", parms);
+     */
+    public static Boolean addMovieUrl(int mid, String addrType, String url) throws Exception {
+        CallableStatement pstmt = null;
+        Connection conn = null;
+        try {
+            conn = DBHelper.getConnection();
+            pstmt = conn.prepareCall("{call MOVIE_PACKAGE.PROC_ADD_MOVIEURL(?,?,?,?)}");
+            pstmt.setInt(1, mid);
+            pstmt.setString(2, addrType);
+            pstmt.setString(3, url.replace("'", "\""));
+            pstmt.registerOutParameter(4, java.sql.Types.INTEGER);
+            return pstmt.execute();
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+            throw new Exception("\n error:" + ex.toString());
+        } finally {
+            if (pstmt != null) {
+                pstmt.clearParameters();
+                pstmt.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+
+        }
     }
 }

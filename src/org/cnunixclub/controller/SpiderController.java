@@ -425,7 +425,7 @@ public class SpiderController implements IDownloaderEvent {
         result += "下一个要分析的分页：" + this.nextChannelPagingUrl + "\n";
         result += "最大搜索页数：" + this.maxPageCount + "\n";
         result += "影片数据保存出错次数：" + this.saveErrorCount + "\n";
-        result += "最近一次的保存出错内容：\n" + this.saveErrorStrs + "\n";
+        result += "最近一次的保存出错内容：\n<textarea cols=\"80\" rows=\"10\" id=\"contactus\" name=\"contactus\">" + this.saveErrorStrs + "</textarea>\n";
         return result;
     }
 
