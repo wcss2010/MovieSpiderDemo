@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
+import org.cnunixclub.controller.SpiderJumpParamEntry;
 import org.cnunixclub.spider.helper.HTMLDownloader;
 
 /**
@@ -72,15 +73,19 @@ public class HTTPResolve implements HttpHandler {
             if (cmds.startsWith("restart-")) {
                 cmds = cmds.trim();
 
-                int jumpCount = 0;
-                try {
-                    jumpCount = Integer.parseInt(cmds.replace("restart-", ""));
+                int jumpChannelCount = 0;
+                int jumpPagingCount = 0;
+                try 
+                {
+                    String[] team = cmds.replace("restart-", "").split("@");
+                    jumpChannelCount = Integer.parseInt(team[0]);
+                    jumpPagingCount = Integer.parseInt(team[1]);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
-                result = "正在重新开启抓取模块！需要跳过" + jumpCount + "个频道！最大分页数：" + ConsoleSpider.maxPageCountFinal;
+                result = "正在重新开启抓取模块！从第" + (jumpChannelCount + 1) + "个频道的第" + (jumpPagingCount + 1) + "页开始！最大分页数：" + ConsoleSpider.maxPageCountFinal;
                 ConsoleSpider.stopSpiderTask();
-                ConsoleSpider.startSpiderWorker(ConsoleSpider.maxPageCountFinal, jumpCount);
+                ConsoleSpider.startSpiderWorker(ConsoleSpider.maxPageCountFinal, new SpiderJumpParamEntry(jumpChannelCount,jumpPagingCount));
             } else if (cmds.startsWith("quit")) {
                 ConsoleSpider.quitSpiderService();
             } else if (cmds.startsWith("stop")) {
@@ -105,7 +110,7 @@ public class HTTPResolve implements HttpHandler {
                 DownloaderManager.manager.stopAllDownloader();
                 result = "任务已暂停";
             } else if (cmds.startsWith("help")) {
-                result += "服务器地址/test?restart-2 (表示重新开始并跳过前2个频道！)\n";
+                result += "服务器地址/test?restart-4@3 (表示从第五个频道的第四页重新开始抓取数据！)\n";
                 result += "服务器地址/test?setmaxpagecount-500 (设置每个分类最大扫描页数为500！)\n";
                 result += "服务器地址/test?quit (退出程序)\n";
                 result += "服务器地址/test?stop (停止当前任务并清理缓冲区)\n";

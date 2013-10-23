@@ -174,7 +174,7 @@ public class MovieSpiderDemoFrame extends javax.swing.JFrame implements IDownloa
         try {
             // TODO add your handling code here:
             this.btnStart.setEnabled(false);
-            sc.start(this.vsra, "www.cncvod.com", 0,true);
+//            sc.start(this.vsra, "www.cncvod.com", 0,true);
         } catch (Exception ex) {
             Logger.getLogger(MovieSpiderDemoFrame.class.getName()).log(Level.SEVERE, null, ex);
         }

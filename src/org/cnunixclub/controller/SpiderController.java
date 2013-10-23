@@ -80,7 +80,8 @@ public class SpiderController implements IDownloaderEvent {
     public Boolean onlyResoveFirstPlayPage = true;
     public int downloadedMovieCount = 0;
     public String nextChannelPagingUrl = "";
-    public int jumpChannelCount = 0;
+    public SpiderJumpParamEntry jumpConfig = null;
+    ;
     public int saveErrorCount = 0;
     public String saveErrorStrs = "";
 
@@ -111,9 +112,9 @@ public class SpiderController implements IDownloaderEvent {
      * @param adapter
      * @param url
      */
-    public void start(IVideoSiteResolveAdapter adapter, String url, int jumpchannelnum, Boolean isReloadAll) throws Exception {
+    public void start(IVideoSiteResolveAdapter adapter, String url, SpiderJumpParamEntry jConfig, Boolean isReloadAll) throws Exception {
         if (adapter != null && url != null && !url.isEmpty()) {
-            this.jumpChannelCount = jumpchannelnum;
+            this.jumpConfig = jConfig;
             this.currentResolveAdapter = adapter;
             String[] support = this.currentResolveAdapter.getSupportVideoSiteUrlList();
             this.currentResolveAdapter.currentSiteUrl = url;
@@ -230,14 +231,17 @@ public class SpiderController implements IDownloaderEvent {
             if (sender.downloaderID.startsWith("homepage")) {
                 try {
                     VideoChannelInfo[] channels = this.currentResolveAdapter.getChannelList(getHtmlContent(sender, 0));
-                    int jumpIndex = 0;
-                    for (VideoChannelInfo vci : channels) {
-                        jumpIndex++;
-                        if (jumpChannelCount == 0 || jumpIndex > jumpChannelCount) {
-                            this.channelList.add(vci);
-                            this.queueChannelList.offer(vci);
+                    if (this.jumpConfig != null) {
+                        int jumpIndex = 0;
+                        for (VideoChannelInfo vci : channels) {
+                            jumpIndex++;
+                            if (this.jumpConfig.jumpChannelCount == 0 || jumpIndex > this.jumpConfig.jumpChannelCount) {
+                                this.channelList.add(vci);
+                                this.queueChannelList.offer(vci);
+                            }
                         }
                     }
+
                     this.saveChannel(channels);
                     this.downloadNextChannelPage();
                 } catch (Exception ex) {
@@ -246,6 +250,20 @@ public class SpiderController implements IDownloaderEvent {
             } else if (sender.downloaderID.startsWith("channel")) {
                 nextChannelPagingUrl = this.currentResolveAdapter.getNextPageUrl(getHtmlContent(sender, 0));
                 printLogText("找到下一页地址：" + nextChannelPagingUrl);
+
+                if (this.jumpConfig != null) {
+                    this.jumpConfig.currentPagingIndex++;
+                    if (this.jumpConfig.currentPagingIndex > this.jumpConfig.jumpPagingCount) {
+                        this.jumpConfig = null;
+                    } else {
+                        try {
+                            this.downloadTask("channel", new String[]{this.nextChannelPagingUrl});
+                        } catch (Exception ex) {
+                            Logger.getLogger(SpiderController.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        return;
+                    }
+                }
 
                 if (this.currentChannelPagingBufferList.contains(nextChannelPagingUrl) || this.currentChannelPagingBufferList.size() > maxPageCount) {
                     nextChannelPagingUrl = "";
@@ -419,13 +437,19 @@ public class SpiderController implements IDownloaderEvent {
             result += "正在下载的影片：" + this.currentVideoInfo.name + "\n";
         }
 
-        result += "已搜索到的影片数：" + this.queueContentList.size() + "\n";
         result += "已下载的影片内容页数量：" + this.queueContentBufferList.size() + "\n";
         result += "已下载影片数：" + downloadedMovieCount + "\n";
         result += "下一个要分析的分页：" + this.nextChannelPagingUrl + "\n";
         result += "最大搜索页数：" + this.maxPageCount + "\n";
+
+        if (this.jumpConfig != null) {
+            result += "当前正在执行跳转操作！需要跳过的频道数：" + this.jumpConfig.jumpChannelCount + ",需要跳过的分页数：" + this.jumpConfig.jumpPagingCount + ",已跳过分页数：" + this.jumpConfig.currentPagingIndex + "\n";
+        }
+
         result += "影片数据保存出错次数：" + this.saveErrorCount + "\n";
-        result += "最近一次的保存出错内容：\n<textarea cols=\"80\" rows=\"10\" id=\"contactus\" name=\"contactus\">" + this.saveErrorStrs + "</textarea>\n";
+        if (this.saveErrorStrs != null) {
+            result += "最近一次的保存出错内容：\n<textarea cols=\"80\" rows=\"10\" id=\"contactus\" name=\"contactus\">" + this.saveErrorStrs.replace("<br>", "\n") + "</textarea>\n";
+        }
         return result;
     }
 

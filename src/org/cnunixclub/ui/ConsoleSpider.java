@@ -12,6 +12,7 @@ import java.net.InetSocketAddress;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.cnunixclub.controller.SpiderController;
+import org.cnunixclub.controller.SpiderJumpParamEntry;
 import org.cnunixclub.db.DBHelper;
 import org.cnunixclub.plugin.CncvodResolve;
 import org.cnunixclub.spider.Interface.IVideoSiteResolveAdapter;
@@ -79,15 +80,15 @@ public class ConsoleSpider implements Runnable, IVideoSiteResolveStatus {
      * @param jumpCount
      * @throws Exception
      */
-    public static void startSpiderWorker(int maxCount, int jumpCount) throws Exception {
+    public static void startSpiderWorker(int maxCount, SpiderJumpParamEntry jumpConfig) throws Exception {
         spiderController = new SpiderController();
         currentSpiderTaskContent = new SpiderTaskContent();
         spiderController.maxPageCount = maxCount;
         spiderController.resolveStatusEvent = localObj;
-        spiderController.start(resolveAdapter, "www.cncvod.com", jumpCount, true);
+        spiderController.start(resolveAdapter, "www.cncvod.com", jumpConfig, true);
 
-        System.out.println("最大页号：" + spiderController.maxPageCount + ",最大跳过的频道数：" + spiderController.jumpChannelCount);
-        spiderController.printLogText("最大页号：" + spiderController.maxPageCount + ",最大跳过的频道数：" + spiderController.jumpChannelCount);
+        System.out.println("最大页号：" + spiderController.maxPageCount + ",最大跳过的频道数：" + spiderController.jumpConfig.jumpChannelCount);
+        spiderController.printLogText("最大页号：" + spiderController.maxPageCount + ",最大跳过的频道数：" + spiderController.jumpConfig.jumpChannelCount);
     }
 
     /**
