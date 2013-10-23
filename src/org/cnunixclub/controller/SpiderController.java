@@ -192,6 +192,10 @@ public class SpiderController implements IDownloaderEvent {
             onReportFinish(idp);
         } else if (code == DownloadStatus.downloadError) {
             printLogText(msg);
+            if (msg.contains("下载失败"))
+            {
+                this.downloadNextPage();
+            }
         } else if (code == DownloadStatus.downloadAgain) {
             printLogText(msg);
         }
@@ -325,25 +329,7 @@ public class SpiderController implements IDownloaderEvent {
                 if (this.queueContentBufferList.size() > 0) {
                     getNextMovieContent();
                 } else {
-                    if (nextChannelPagingUrl == null || (nextChannelPagingUrl != null && nextChannelPagingUrl.isEmpty())) {
-                        if (queueChannelList.size() > 0) {
-                            try {
-                                currentChannelPagingBufferList.clear();
-
-                                this.downloadNextChannelPage();
-                            } catch (Exception ex) {
-                                Logger.getLogger(SpiderController.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                        } else {
-                            this.finishSpiderTask();
-                        }
-                    } else {
-                        try {
-                            this.downloadTask("channel", new String[]{this.nextChannelPagingUrl});
-                        } catch (Exception ex) {
-                            Logger.getLogger(SpiderController.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                    }
+                    downloadNextPage();
                 }
             }
 
@@ -501,5 +487,30 @@ public class SpiderController implements IDownloaderEvent {
 
     private void finishSpiderTask() {
         this.processResolveStatus(finishSpiderTaskStatusValue, null);
+    }
+
+    /**
+     * 下载下一个频道或分页
+     */
+    private void downloadNextPage() {
+        if (nextChannelPagingUrl == null || (nextChannelPagingUrl != null && nextChannelPagingUrl.isEmpty())) {
+            if (queueChannelList.size() > 0) {
+                try {
+                    currentChannelPagingBufferList.clear();
+
+                    this.downloadNextChannelPage();
+                } catch (Exception ex) {
+                    Logger.getLogger(SpiderController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } else {
+                this.finishSpiderTask();
+            }
+        } else {
+            try {
+                this.downloadTask("channel", new String[]{this.nextChannelPagingUrl});
+            } catch (Exception ex) {
+                Logger.getLogger(SpiderController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
 }
